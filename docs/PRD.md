@@ -43,9 +43,6 @@
 9. [Data Seed untuk Demonstrasi](#9-data-seed-untuk-demonstrasi)
 10. [Kebutuhan Nonfungsional](#10-kebutuhan-nonfungsional)
 11. [User Acceptance Testing (UAT)](#11-user-acceptance-testing-uat)
-12. [Pemetaan terhadap 19 Poin Soal](#12-pemetaan-terhadap-19-poin-soal)
-13. [Kriteria Penyelesaian Project](#13-kriteria-penyelesaian-project)
-14. [Catatan Keputusan Implementasi](#14-catatan-keputusan-implementasi)
 
 ---
 
