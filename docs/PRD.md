@@ -578,7 +578,7 @@ Database mengikuti ERD dan memiliki enam tabel inti. Semua tabel menggunakan pri
 
 ## Entity Relationship Diagram (ERD)
 
-![ERD KhodamKu](docs/ERD.png)
+![ERD KhodamKu](ERD.png)
 
 > Pastikan file gambar ERD tersedia di `docs/ERD_KhodamKu.png`. Jika lokasi atau nama file berbeda, sesuaikan path gambar di atas.
 
