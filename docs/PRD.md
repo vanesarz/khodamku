@@ -449,6 +449,8 @@ README memuat nama kelompok, nama tim, nama project, daftar fitur, screenshot sk
 
 # 4. Aturan Bisnis
 
+![Flowchart KhodamKu](Flowchart.png)
+
 ## BR-01 — Maksimal Dua Pemanggilan Aktif
 
 Setiap Pengamal maksimal memiliki dua pemanggilan berstatus aktif. Sistem menghitung transaksi aktif, bukan seluruh riwayat.
@@ -579,8 +581,6 @@ Database mengikuti ERD dan memiliki enam tabel inti. Semua tabel menggunakan pri
 ## Entity Relationship Diagram (ERD)
 
 ![ERD KhodamKu](ERD.png)
-
-> Pastikan file gambar ERD tersedia di `docs/ERD_KhodamKu.png`. Jika lokasi atau nama file berbeda, sesuaikan path gambar di atas.
 
 ## 7.1 Tabel `users`
 
