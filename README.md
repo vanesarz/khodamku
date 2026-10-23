@@ -189,7 +189,7 @@ Kredensial bawaan yang disiapkan oleh `DatabaseSeeder` (`AdminUserSeeder`):
 
 | Peran | Email | Kata Sandi | Deskripsi |
 |---|---|---|---|
-| **Juru Kunci (Admin)** | `admin@khodamku.test` | `password123` | Akses manajemen penuh, konfirmasi lepas, laporan |
+| **Juru Kunci (Admin)** | `admin@example.com` | `password123` | Akses manajemen penuh, konfirmasi lepas, laporan |
 | **Pengamal (Member)** | `pengamal@khodamku.test` | `password123` | Akses katalog, panggil khodam, pantau status |
 
 ---
