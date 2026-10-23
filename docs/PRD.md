@@ -5,16 +5,8 @@
 
 **Versi:** 1.0  
 **Status:** Draft untuk Implementasi  
-**Teknologi:** Laravel · Blade · MySQL · Laravel Breeze  
+**Teknologi:** Laravel · MySQL · Laravel Breeze  
 **Kelompok:** Kelompok 11
-
-## Anggota Kelompok
-
-| Nama | NIM |
-|---|---|
-| Vanesa Rizka Alfatihah | 102022300121 |
-| Taufik Qurohman | 102022300211 |
-| Ahmad Akmal Amran | 102022300010 |
 
 ---
 
@@ -26,7 +18,7 @@
 | Jenis Aplikasi | Web Application |
 | Versi Dokumen | 1.0 |
 | Status | Draft untuk Implementasi |
-| Backend / Frontend | Laravel / Blade |
+| Backend / Frontend | Laravel / Next.js |
 | Database | MySQL |
 | Autentikasi | Laravel Breeze |
 
