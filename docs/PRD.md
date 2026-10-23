@@ -657,7 +657,7 @@ Status ketersediaan khodam dihitung dari keberadaan transaksi aktif. Foreign key
 ## 8.1 Teknologi
 
 1. Backend: Laravel.
-2. Frontend: Blade.
+2. Frontend: Next.js.
 3. Autentikasi: Laravel Breeze.
 4. Database: MySQL.
 5. Skema: Laravel Migration.
@@ -675,7 +675,7 @@ Alur yang direncanakan:
 3. Service menangani aturan bisnis.
 4. Repository mengabstraksi akses data jika diwajibkan.
 5. Model merepresentasikan entitas dan relasi.
-6. View menampilkan antarmuka Blade.
+6. View menampilkan antarmuka.
 
 Kebutuhan penggunaan Repository perlu dikonfirmasi kepada trainer jika belum menjadi ketentuan wajib.
 
