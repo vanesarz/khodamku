@@ -17,30 +17,37 @@ jobs:
     - name: Setup PHP Environment
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.2'
-        extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, bcmath
+        php-version: '8.3'
+        extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, bcmath, sqlite3
         coverage: none
 
     - name: Prepare Environment File
       run: php -r "file_exists('.env') || copy('.env.example', '.env');"
 
     - name: Install Composer Dependencies
-      run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      # --ignore-platform-req=php+ mencegah error jika composer.lock mengunci versi PHP spesifik
+      run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist --ignore-platform-req=php+
 
     - name: Generate Application Key
       run: php artisan key:generate
 
+    - name: Prepare SQLite Database File
+      # Buat file database fisik agar skema tabel tersimpan untuk step testing
+      run: |
+        mkdir -p database
+        touch database/database.sqlite
+
     - name: Directory Permissions
-      run: chmod -R 777 storage bootstrap/cache
+      run: chmod -R 777 storage bootstrap/cache database
 
     - name: Run Database Migrations
       env:
         DB_CONNECTION: sqlite
-        DB_DATABASE: ':memory:'
+        DB_DATABASE: ${{ github.workspace }}/database/database.sqlite
       run: php artisan migrate --force
 
     - name: Run Feature & Unit Tests
       env:
         DB_CONNECTION: sqlite
-        DB_DATABASE: ':memory:'
+        DB_DATABASE: ${{ github.workspace }}/database/database.sqlite
       run: php artisan test
