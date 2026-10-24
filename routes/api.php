@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\AdminBukuCatatanGaibController;
 use App\Http\Controllers\Admin\Kelola\KhodamController;
 use App\Http\Controllers\Admin\Kelola\KategoriController;
 use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Admin\AdminDashboardController;
 
 Route::middleware('auth:sanctum')->group(function () {
 
@@ -21,6 +22,14 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Route khusus Admin
     Route::middleware('role:admin')->prefix('admin')->group(function () {
+
+        // Dashboard
+        Route::get('/dashboard', [AdminDashboardController::class, 'index']);
+        Route::get('/dashboard/statistik', [AdminDashboardController::class, 'statistik']);
+        Route::get('/dashboard/jatuh-tempo-terdekat', [AdminDashboardController::class, 'jatuhTempoTerdekat']);
+        Route::get('/dashboard/kategori', [AdminDashboardController::class, 'kategori']);
+        Route::get('/dashboard/ringkasan', [AdminDashboardController::class, 'ringkasan']);
+        
 
         // Kelola User
         Route::get('/users', [AdminUserController::class, 'index']);
