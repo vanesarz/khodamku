@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Storage;
 
 class KhodamController extends Controller
 {
-    // 1. Ambil daftar khodam beserta filter pencarian dan status ketersediaan
+    // 1. Ambil daftar khodam 
     public function index(Request $request): JsonResponse
     {
         $query = Khodam::with('kategoris')
