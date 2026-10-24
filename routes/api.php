@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Profile\ProfileController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\AdminPemanggilanController;
+use App\Http\Controllers\Admin\AdminBukuCatatanGaibController;
 
 Route::middleware('auth:sanctum')->group(function () {
 
@@ -22,6 +23,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::get('/pemanggilan/aktif', [AdminPemanggilanController::class, 'index']);
         Route::post('/pemanggilan/{id}/lepas', [AdminPemanggilanController::class, 'lepas']);
+        Route::get('/buku-catatan-gaib', [AdminBukuCatatanGaibController::class, 'index']);
     });
 
 });
