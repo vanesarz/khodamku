@@ -23,7 +23,7 @@ class Khodam extends Model
         return $this->belongsToMany(Kategori::class, 'kategori_khodam');
     }
 
-    public function pemanggilan(): HasMany
+    public function pemanggilans(): HasMany
     {
         return $this->hasMany(Pemanggilan::class);
     }

@@ -7,6 +7,7 @@ use App\Http\Controllers\Profile\ProfileController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\AdminPemanggilanController;
 use App\Http\Controllers\Admin\AdminBukuCatatanGaibController;
+use App\Http\Controllers\Admin\Kelola\KhodamController;
 
 Route::middleware('auth:sanctum')->group(function () {
 
@@ -19,11 +20,23 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Route khusus Admin
     Route::middleware('role:admin')->prefix('admin')->group(function () {
+
+        // Kelola User
         Route::post('/users', [AdminUserController::class, 'store']);
 
+        // Kelola Pemanggilan
         Route::get('/pemanggilan/aktif', [AdminPemanggilanController::class, 'index']);
         Route::post('/pemanggilan/{id}/lepas', [AdminPemanggilanController::class, 'lepas']);
+
+        // Buku Catatan Gaib (Riwayat)
         Route::get('/buku-catatan-gaib', [AdminBukuCatatanGaibController::class, 'index']);
+
+        // kelola Khodam
+        Route::get('/khodam', [KhodamController::class, 'index']);
+        Route::post('/khodam', [KhodamController::class, 'store']);
+        Route::get('/khodam/{id}', [KhodamController::class, 'show']);
+        Route::post('/khodam/{id}', [KhodamController::class, 'update']);
+        Route::delete('/khodam/{id}', [KhodamController::class, 'destroy']);
     });
 
 });
