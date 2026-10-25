@@ -10,6 +10,8 @@ use App\Http\Controllers\Admin\Kelola\KhodamController;
 use App\Http\Controllers\Admin\Kelola\KategoriController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Pemanggilan\PemanggilanController;
+use App\Http\Controllers\Riwayat\RiwayatController;
 
 Route::middleware('auth:sanctum')->group(function () {
 
@@ -19,6 +21,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/profile', [ProfileController::class, 'show']);
     Route::post('/profile', [ProfileController::class, 'update']);
+
+    Route::get('/khodam', [PemanggilanController::class, 'index']);
+    Route::post('/pemanggilan', [PemanggilanController::class, 'store']);
+    Route::get('/pemanggilan/aktif', [PemanggilanController::class, 'myActive']);
+    Route::get('/riwayat', [RiwayatController::class, 'index']);
 
     // Route khusus Admin
     Route::middleware('role:admin')->prefix('admin')->group(function () {
