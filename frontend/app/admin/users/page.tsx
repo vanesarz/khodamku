@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
 import HeaderDate from '@/components/layout/HeaderDate';
-import { Users, Plus, Search, Trash2, X, AlertCircle, CheckCircle2, Loader2, Shield, User as UserIcon, Phone, MapPin, Calendar } from 'lucide-react';
+import { Users, Plus, Search, Pencil, Trash2, X, AlertCircle, CheckCircle2, Loader2, Shield, User as UserIcon, Phone, MapPin, Calendar } from 'lucide-react';
 
 interface UserProfile {
   id?: number;
@@ -31,8 +31,10 @@ export default function AdminKelolaUsersPage() {
 
   // Modal states
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedUserDetail, setSelectedUserDetail] = useState<UserItem | null>(null);
+  const [editingUser, setEditingUser] = useState<UserItem | null>(null);
   const [deletingUser, setDeletingUser] = useState<UserItem | null>(null);
 
   // Form states
@@ -41,6 +43,8 @@ export default function AdminKelolaUsersPage() {
   const [password, setPassword] = useState('');
   const [passwordConfirmation, setPasswordConfirmation] = useState('');
   const [role, setRole] = useState<'pengamal' | 'admin'>('pengamal');
+  const [noHp, setNoHp] = useState('');
+  const [alamat, setAlamat] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
@@ -95,6 +99,17 @@ export default function AdminKelolaUsersPage() {
     setIsAddModalOpen(true);
   };
 
+  const handleOpenEdit = (u: UserItem) => {
+    setEditingUser(u);
+    setName(u.name);
+    setEmail(u.email);
+    setPassword('');
+    setNoHp(u.profile?.no_hp && u.profile.no_hp !== '-' ? u.profile.no_hp : '');
+    setAlamat(u.profile?.alamat && u.profile.alamat !== '-' ? u.profile.alamat : '');
+    setFormError(null);
+    setIsEditModalOpen(true);
+  };
+
   const handleOpenDelete = (u: UserItem) => {
     setDeletingUser(u);
     setFormError(null);
@@ -147,6 +162,56 @@ export default function AdminKelolaUsersPage() {
       setTimeout(() => setSuccessMsg(null), 4000);
     } catch (err) {
       console.error('Create user error:', err);
+      setFormError('Terjadi kesalahan jaringan.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleUpdateUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingUser) return;
+    setFormError(null);
+
+    if (!name.trim() || !email.trim()) {
+      setFormError('Nama dan email wajib diisi.');
+      return;
+    }
+
+    if (password && password.length < 8) {
+      setFormError('Kata sandi minimal harus 8 karakter.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const res = await fetch(`/api/admin/users/${editingUser.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email.trim().toLowerCase(),
+          password,
+          no_hp: noHp.trim(),
+          alamat: alamat.trim(),
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        const firstError = data.errors ? (Object.values(data.errors)[0] as string[])?.[0] : null;
+        setFormError(firstError || data.error || 'Gagal memperbarui data pengguna');
+        setIsSubmitting(false);
+        return;
+      }
+
+      setSuccessMsg(`Data akun "${name.trim()}" berhasil diperbarui.`);
+      setIsEditModalOpen(false);
+      setEditingUser(null);
+      await fetchUsers();
+      setTimeout(() => setSuccessMsg(null), 4000);
+    } catch (err) {
+      console.error('Update user error:', err);
       setFormError('Terjadi kesalahan jaringan.');
     } finally {
       setIsSubmitting(false);
@@ -376,7 +441,15 @@ export default function AdminKelolaUsersPage() {
                           <td className="py-4 px-6 font-mono text-stone-400">
                             {item.profile?.weton || '—'}
                           </td>
-                          <td className="py-4 px-6 text-right">
+                          <td className="py-4 px-6 text-right space-x-1.5">
+                            <button
+                              type="button"
+                              onClick={() => handleOpenEdit(item)}
+                              className="p-1.5 rounded-lg border border-stone-800 bg-stone-900/60 text-stone-400 hover:text-[#d8b168] hover:border-[#d8b168]/40 hover:bg-[#d8b168]/10 transition-colors"
+                              title="Ubah Data Pengguna"
+                            >
+                              <Pencil className="h-3.5 w-3.5" />
+                            </button>
                             <button
                               type="button"
                               onClick={() => handleOpenDelete(item)}
@@ -531,6 +604,123 @@ export default function AdminKelolaUsersPage() {
                 >
                   {isSubmitting && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                   <span>Daftarkan Akun</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Ubah Pengguna */}
+      {isEditModalOpen && editingUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="w-full max-w-md rounded-2xl border border-stone-800 bg-[#12100e] p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between pb-4 border-b border-stone-800/80">
+              <div className="flex items-center gap-2.5">
+                <div className="h-8 w-8 rounded-lg border border-stone-800 bg-stone-900 flex items-center justify-center text-[#d8b168]">
+                  <Pencil className="h-4 w-4" />
+                </div>
+                <h3 className="text-base font-bold text-white">
+                  Ubah Data Pengguna
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsEditModalOpen(false)}
+                className="text-stone-400 hover:text-stone-200"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdateUser} className="mt-5 space-y-4">
+              {formError && (
+                <div className="flex items-center gap-2 rounded-lg border border-rose-500/30 bg-rose-950/20 p-3 text-xs text-rose-300">
+                  <AlertCircle className="h-4 w-4 shrink-0 text-rose-400" />
+                  <span>{formError}</span>
+                </div>
+              )}
+
+              <div>
+                <label className="block text-xs font-semibold text-stone-300 mb-1.5">
+                  Nama Lengkap <span className="text-[#d8b168]">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full rounded-lg border border-stone-800 bg-stone-900/60 px-3.5 py-2.5 text-xs text-white placeholder-stone-500 focus:border-[#d8b168] focus:outline-none"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-stone-300 mb-1.5">
+                  Alamat Email <span className="text-[#d8b168]">*</span>
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full rounded-lg border border-stone-800 bg-stone-900/60 px-3.5 py-2.5 text-xs text-white placeholder-stone-500 focus:border-[#d8b168] focus:outline-none"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-stone-300 mb-1.5">
+                  Kata Sandi Baru
+                </label>
+                <input
+                  type="password"
+                  placeholder="Kosongkan jika tidak diubah"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full rounded-lg border border-stone-800 bg-stone-900/60 px-3.5 py-2.5 text-xs text-white placeholder-stone-500 focus:border-[#d8b168] focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-stone-300 mb-1.5">
+                  Nomor HP
+                </label>
+                <input
+                  type="text"
+                  placeholder="081234567890"
+                  value={noHp}
+                  onChange={(e) => setNoHp(e.target.value)}
+                  className="w-full rounded-lg border border-stone-800 bg-stone-900/60 px-3.5 py-2.5 text-xs text-white placeholder-stone-500 focus:border-[#d8b168] focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-stone-300 mb-1.5">
+                  Alamat
+                </label>
+                <textarea
+                  rows={2}
+                  placeholder="Jl. Kenanga No. 12, Sleman"
+                  value={alamat}
+                  onChange={(e) => setAlamat(e.target.value)}
+                  className="w-full rounded-lg border border-stone-800 bg-stone-900/60 px-3.5 py-2.5 text-xs text-white placeholder-stone-500 focus:border-[#d8b168] focus:outline-none resize-none"
+                />
+              </div>
+
+              <div className="pt-3 flex items-center justify-end gap-3 border-t border-stone-800/80">
+                <button
+                  type="button"
+                  onClick={() => setIsEditModalOpen(false)}
+                  className="rounded-lg border border-stone-800 px-4 py-2 text-xs font-medium text-stone-400 hover:text-stone-200 hover:bg-stone-900 transition-colors"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="inline-flex items-center gap-2 rounded-lg bg-[#d8b168] px-5 py-2 text-xs font-semibold text-stone-950 hover:bg-[#c99f52] transition-colors disabled:opacity-50"
+                >
+                  {isSubmitting && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                  <span>Simpan Perubahan</span>
                 </button>
               </div>
             </form>

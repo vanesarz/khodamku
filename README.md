@@ -15,7 +15,7 @@ KhodamKu adalah aplikasi web sistem informasi peminjaman dan persewaan unit yang
 | **Nama Kelompok** | **Kelompok 11** |
 | **Nama Project** | **KhodamKu** (*Sewa Khodam, Hidup Lebih Tenang*) |
 | **Kategori Aplikasi** | Web Application Decoupled (REST API + Single Page Application) |
-| **Teknologi Backend** | PHP 8.2+, Laravel 11, Laravel Sanctum, MySQL / MariaDB |
+| **Teknologi Backend** | PHP ^8.3, Laravel 13.x, Laravel Sanctum, MySQL / MariaDB |
 | **Teknologi Frontend**| Next.js 16 (App Router), React 19, TypeScript, Vanilla CSS & Tailwind CSS |
 
 ### 👥 Nama Team
@@ -275,7 +275,7 @@ Aplikasi telah dilengkapi seeder komprehensif (`php artisan db:seed`) untuk meme
 ## 🚀 Panduan Instalasi & Menjalankan Aplikasi
 
 ### 1. Persyaratan Sistem
-- PHP `>= 8.2` & Composer `>= 2.8`
+- PHP `^8.3` & Composer `>= 2.8`
 - Node.js `>= 18.x` & npm
 - MySQL Server / MariaDB
 

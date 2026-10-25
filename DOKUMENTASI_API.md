@@ -490,12 +490,31 @@ Daftar user dengan pagination (20 per halaman).
 Body: `name`, `email`, `password`, `password_confirmation`, `role` (`admin` atau `pengamal`).
 Response 201: `{ "message": "Akun admin baru berhasil dibuat", "data": { ...user, "profile": {...} } }`
 
-> [!WARNING]
-> Field `role` saat ini **belum divalidasi** di backend. Kirim hanya `admin` atau `pengamal`.
+`role` wajib diisi dan hanya boleh `admin` atau `pengamal`. Nilai lain ditolak dengan 422.
 
 ### GET `/admin/users/{id}`
 
 `{ "message": "Detail user", "data": { ...user, "profile": {...} } }`
+
+### POST `/admin/users/{id}`
+
+Ubah data anggota. Mengikuti pola update khodam dan kategori (method `POST`, bukan `PUT`).
+
+| Field    | Aturan                                                       |
+| -------- | ------------------------------------------------------------ |
+| name     | wajib, maks 255 karakter                                     |
+| email    | wajib, huruf kecil, format email, unik kecuali milik user ini |
+| password | opsional, min. 8 karakter. Kosong berarti sandi tidak diubah |
+| no_hp    | opsional, maks 20 karakter                                   |
+| alamat   | opsional, maks 1000 karakter                                 |
+
+- `role` tidak bisa diubah lewat endpoint ini. Field `role` di body diabaikan.
+- `no_hp` atau `alamat` yang tidak dikirim tetap bernilai lama. Yang dikirim kosong (`null`) disimpan sebagai `-`.
+- Data user dan profil disimpan dalam satu transaksi.
+
+Response 200: `{ "message": "Data user berhasil diperbarui", "data": { ...user, "profile": {...} } }`
+
+Error: 404 jika user tidak ada, 422 jika validasi gagal, 403 jika bukan admin.
 
 ### DELETE `/admin/users/{id}`
 
@@ -768,6 +787,7 @@ await api("/admin/khodam", { method: "POST", body: fd, isForm: true });
 | GET    | `/admin/users`                          | ya   | admin | Daftar user               |
 | POST   | `/admin/users`                          | ya   | admin | Tambah user               |
 | GET    | `/admin/users/{id}`                     | ya   | admin | Detail user               |
+| POST   | `/admin/users/{id}`                     | ya   | admin | Ubah data user            |
 | DELETE | `/admin/users/{id}`                     | ya   | admin | Hapus user                |
 | GET    | `/admin/pemanggilan/aktif`              | ya   | admin | Pemanggilan aktif         |
 | POST   | `/admin/pemanggilan/{id}/lepas`         | ya   | admin | Lepas khodam              |
