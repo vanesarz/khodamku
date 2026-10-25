@@ -5,82 +5,87 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import Sidebar from '@/components/layout/Sidebar';
 import HeaderDate from '@/components/layout/HeaderDate';
-import { getAnchoredTransactions } from '@/lib/dateUtils';
+import { formatDateFull } from '@/lib/dateUtils';
 
-interface AdminPemanggilanItem {
+interface JatuhTempoItem {
   id: number;
-  kode_transaksi: string;
-  pengamal: string;
   khodam: {
     nama: string;
     kode_khodam: string;
-    sigil: string;
+    sigil?: string;
   };
-  tgl_panggil: string;
+  pengamal: string;
   tgl_jatuh_tempo: string;
-  tgl_jatuh_tempo_raw?: string;
   status_badge: string;
-  estimasi_mahar: string;
-  mahar?: number;
   is_terlambat: boolean;
 }
 
-const KATEGORI_ITEMS = [
-  { nama: 'Penjaga Rumah', jumlah: 3, percentage: '50%' },
-  { nama: 'Penglaris Dagangan', jumlah: 2, percentage: '33%' },
-  { nama: 'Pelindung Ujian', jumlah: 1, percentage: '17%' },
-  { nama: 'Kewibawaan', jumlah: 3, percentage: '50%' },
-  { nama: 'Penolak Bala', jumlah: 2, percentage: '33%' },
-  { nama: 'Pencari Jodoh', jumlah: 1, percentage: '17%' },
+interface KategoriItem {
+  id: number;
+  nama: string;
+  jumlah_khodam: number;
+}
+
+interface DashboardStatistik {
+  jumlah_unit: number;
+  menunggu_dipanggil: number;
+  sedang_bersemayam: number;
+  pemanggilan_aktif: number;
+  terlambat: number;
+}
+
+const DEFAULT_KATEGORIS: KategoriItem[] = [
+  { id: 1, nama: 'Penjaga Rumah', jumlah_khodam: 3 },
+  { id: 2, nama: 'Penglaris Dagangan', jumlah_khodam: 2 },
+  { id: 3, nama: 'Pelindung Ujian', jumlah_khodam: 1 },
+  { id: 4, nama: 'Kewibawaan', jumlah_khodam: 3 },
+  { id: 5, nama: 'Penolak Bala', jumlah_khodam: 2 },
+  { id: 6, nama: 'Pencari Jodoh', jumlah_khodam: 1 },
 ];
 
 export default function AdminDashboardPage() {
-  const [activeRecords, setActiveRecords] = useState<AdminPemanggilanItem[]>([]);
+  const [statistik, setStatistik] = useState<DashboardStatistik>({
+    jumlah_unit: 8,
+    menunggu_dipanggil: 4,
+    sedang_bersemayam: 4,
+    pemanggilan_aktif: 4,
+    terlambat: 1,
+  });
+  const [jatuhTempoItems, setJatuhTempoItems] = useState<JatuhTempoItem[]>([]);
+  const [kategoriList, setKategoriList] = useState<KategoriItem[]>(DEFAULT_KATEGORIS);
+  const [pengamalTerdaftar, setPengamalTerdaftar] = useState<number>(3);
   const [maharTerkumpul, setMaharTerkumpul] = useState<number>(20000);
+  const [estimasiDenda, setEstimasiDenda] = useState<number>(10000);
   const [hasLoaded, setHasLoaded] = useState(false);
 
   useEffect(() => {
-    // Initial baseline
-    const initialBaseline = getAnchoredTransactions()
-      .filter((t) => t.status === 'Aktif' || t.status === 'Terlambat')
-      .map((item) => ({
-        id: item.id,
-        kode_transaksi: item.kode_transaksi,
-        pengamal: item.pengamal,
-        khodam: {
-          nama: item.khodam.nama,
-          kode_khodam: item.khodam.kode_khodam,
-          sigil: item.khodam.sigil,
-        },
-        tgl_panggil: item.tgl_panggil,
-        tgl_jatuh_tempo: item.tgl_jatuh_tempo,
-        tgl_jatuh_tempo_raw: item.tgl_jatuh_tempo_raw,
-        status_badge: item.status_badge,
-        estimasi_mahar: item.mahar_formatted.replace('~', ''),
-        mahar: item.mahar,
-        is_terlambat: item.is_terlambat,
-      }));
-
-    setActiveRecords(initialBaseline);
-
     const loadDashboardData = async () => {
       try {
-        const [resPemanggilan, resLedger] = await Promise.all([
-          fetch('/api/admin/pemanggilan'),
-          fetch('/api/admin/buku-catatan-gaib'),
-        ]);
+        const res = await fetch('/api/admin/dashboard');
 
-        if (resPemanggilan.ok) {
-          const json = await resPemanggilan.json();
-          if (json.data && Array.isArray(json.data)) {
-            setActiveRecords(json.data);
-          }
-        }
+        if (res.ok) {
+          const json = await res.json();
+          const d = json.data;
 
-        if (resLedger.ok) {
-          const ledgerJson = await resLedger.json();
-          if (ledgerJson.ringkasan && typeof ledgerJson.ringkasan.total_mahar === 'number') {
-            setMaharTerkumpul(ledgerJson.ringkasan.total_mahar);
+          if (d) {
+            if (d.statistik) {
+              setStatistik(d.statistik);
+            }
+            if (Array.isArray(d.jatuh_tempo_terdekat)) {
+              setJatuhTempoItems(d.jatuh_tempo_terdekat);
+            }
+            if (Array.isArray(d.kategori) && d.kategori.length > 0) {
+              setKategoriList(d.kategori);
+            }
+            if (typeof d.pengamal_terdaftar === 'number') {
+              setPengamalTerdaftar(d.pengamal_terdaftar);
+            }
+            if (typeof d.mahar_terkumpul === 'number') {
+              setMaharTerkumpul(d.mahar_terkumpul);
+            }
+            if (d.ringkasan && typeof d.ringkasan.estimasi_mahar_terlambat === 'number') {
+              setEstimasiDenda(d.ringkasan.estimasi_mahar_terlambat);
+            }
           }
         }
       } catch (err) {
@@ -93,48 +98,19 @@ export default function AdminDashboardPage() {
     loadDashboardData();
   }, []);
 
-  // Dynamic calculations
-  const totalUnit = 8;
-  const pemanggilanAktif = activeRecords.length;
-  const sedangBersemayam = pemanggilanAktif;
-  const menungguDipanggil = Math.max(0, totalUnit - sedangBersemayam);
-
-  const terlambatRecords = useMemo(
-    () => activeRecords.filter((r) => r.is_terlambat),
-    [activeRecords]
-  );
-  const terlambatCount = terlambatRecords.length;
-
-  const totalDenda = useMemo(() => {
-    return terlambatRecords.reduce((sum, item) => {
-      const val = typeof item.mahar === 'number'
-        ? item.mahar
-        : parseInt(String(item.estimasi_mahar || '0').replace(/[^0-9]/g, ''), 10) || 0;
-      return sum + val;
-    }, 0);
-  }, [terlambatRecords]);
-
   // Subtitle headline
   const summaryHeadline = useMemo(() => {
-    if (terlambatCount > 0) {
-      return `${terlambatCount} kontrak melewati jatuh tempo dengan estimasi mahar Rp${totalDenda.toLocaleString('id-ID')}.`;
+    if (statistik.terlambat > 0) {
+      return `${statistik.terlambat} kontrak melewati jatuh tempo dengan estimasi mahar Rp${estimasiDenda.toLocaleString('id-ID')}.`;
     }
-    if (pemanggilanAktif > 0) {
-      return `Semua ${pemanggilanAktif} kontrak gaib aktif berstatus aman dan belum melewati jatuh tempo.`;
+    if (statistik.pemanggilan_aktif > 0) {
+      return `Semua ${statistik.pemanggilan_aktif} kontrak gaib aktif berstatus aman dan belum melewati jatuh tempo.`;
     }
     return 'Tidak ada kontrak gaib aktif saat ini. Semua khodam beristirahat di padepokan.';
-  }, [terlambatCount, totalDenda, pemanggilanAktif]);
+  }, [statistik.terlambat, estimasiDenda, statistik.pemanggilan_aktif]);
 
-  // Filter & sort active units sorted by due date (overdue first)
-  const jatuhTempoItems = useMemo(() => {
-    return [...activeRecords].sort((a, b) => {
-      if (a.is_terlambat && !b.is_terlambat) return -1;
-      if (!a.is_terlambat && b.is_terlambat) return 1;
-      const rawA = a.tgl_jatuh_tempo_raw || a.tgl_jatuh_tempo || '';
-      const rawB = b.tgl_jatuh_tempo_raw || b.tgl_jatuh_tempo || '';
-      return rawA.localeCompare(rawB);
-    });
-  }, [activeRecords]);
+  // Max count for category percentage calculation
+  const maxKhodam = Math.max(statistik.jumlah_unit, 1);
 
   return (
     <div className="min-h-screen bg-[#090807] text-stone-100 flex">
@@ -181,7 +157,7 @@ export default function AdminDashboardPage() {
                   Jumlah unit
                 </p>
                 <p className="mt-1 text-3xl font-extrabold text-white">
-                  {totalUnit}
+                  {statistik.jumlah_unit}
                 </p>
               </div>
 
@@ -191,7 +167,7 @@ export default function AdminDashboardPage() {
                   Menunggu dipanggil
                 </p>
                 <p className="mt-1 text-3xl font-extrabold text-white">
-                  {menungguDipanggil}
+                  {statistik.menunggu_dipanggil}
                 </p>
               </div>
 
@@ -201,7 +177,7 @@ export default function AdminDashboardPage() {
                   Sedang bersemayam
                 </p>
                 <p className="mt-1 text-3xl font-extrabold text-white">
-                  {sedangBersemayam}
+                  {statistik.sedang_bersemayam}
                 </p>
               </div>
 
@@ -211,7 +187,7 @@ export default function AdminDashboardPage() {
                   Pemanggilan aktif
                 </p>
                 <p className="mt-1 text-3xl font-extrabold text-white">
-                  {pemanggilanAktif}
+                  {statistik.pemanggilan_aktif}
                 </p>
               </div>
 
@@ -222,10 +198,10 @@ export default function AdminDashboardPage() {
                 </p>
                 <p
                   className={`mt-1 text-3xl font-extrabold ${
-                    terlambatCount > 0 ? 'text-amber-500' : 'text-stone-300'
+                    statistik.terlambat > 0 ? 'text-amber-500' : 'text-stone-300'
                   }`}
                 >
-                  {terlambatCount}
+                  {statistik.terlambat}
                 </p>
               </div>
             </div>
@@ -255,58 +231,66 @@ export default function AdminDashboardPage() {
                     Tidak ada kontrak pemanggilan yang sedang berjalan saat ini.
                   </div>
                 ) : (
-                  jatuhTempoItems.map((item) => (
-                  <div
-                    key={item.id}
-                    className="py-4 first:pt-0 last:pb-0 flex items-center justify-between gap-4"
-                  >
-                    <div className="flex items-center gap-3.5 min-w-0">
-                      {/* Circular Sigil with radar crosshair target */}
-                      <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-stone-800 bg-stone-900/60 shadow-inner">
-                        <div className="absolute inset-1 rounded-full border border-stone-800/80" />
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="h-full w-[1px] bg-stone-800/50" />
-                        </div>
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="w-full h-[1px] bg-stone-800/50" />
-                        </div>
-                        <span className="font-mono text-[10px] font-bold text-stone-200 z-10">
-                          {item.khodam.sigil}
-                        </span>
-                      </div>
+                  jatuhTempoItems.map((item) => {
+                    const sigil =
+                      item.khodam.sigil ||
+                      item.khodam.kode_khodam?.split('-')[1] ||
+                      'KHD';
+                    const displayDate = formatDateFull(item.tgl_jatuh_tempo, false);
 
-                      <div className="min-w-0">
-                        <h3 className="text-sm font-bold text-white truncate">
-                          {item.khodam.nama}
-                        </h3>
-                        <p className="text-[11px] text-stone-400 truncate mt-0.5">
-                          {item.pengamal} &middot;{' '}
-                          <span className="font-mono text-stone-500">
-                            {item.khodam.kode_khodam}
-                          </span>
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-6 shrink-0 text-right">
-                      <span className="text-xs text-stone-400">
-                        {item.tgl_jatuh_tempo}
-                      </span>
-                      <span
-                        className={`text-xs font-semibold w-24 text-right ${
-                          item.is_terlambat
-                            ? 'text-amber-500'
-                            : item.status_badge === 'Hari ini'
-                            ? 'text-amber-400'
-                            : 'text-stone-400'
-                        }`}
+                    return (
+                      <div
+                        key={item.id}
+                        className="py-4 first:pt-0 last:pb-0 flex items-center justify-between gap-4"
                       >
-                        {item.status_badge}
-                      </span>
-                    </div>
-                  </div>
-                ))
-              )}
+                        <div className="flex items-center gap-3.5 min-w-0">
+                          {/* Circular Sigil with radar crosshair target */}
+                          <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-stone-800 bg-stone-900/60 shadow-inner">
+                            <div className="absolute inset-1 rounded-full border border-stone-800/80" />
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <div className="h-full w-[1px] bg-stone-800/50" />
+                            </div>
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <div className="w-full h-[1px] bg-stone-800/50" />
+                            </div>
+                            <span className="font-mono text-[10px] font-bold text-stone-200 z-10">
+                              {sigil}
+                            </span>
+                          </div>
+
+                          <div className="min-w-0">
+                            <h3 className="text-sm font-bold text-white truncate">
+                              {item.khodam.nama}
+                            </h3>
+                            <p className="text-[11px] text-stone-400 truncate mt-0.5">
+                              {item.pengamal} &middot;{' '}
+                              <span className="font-mono text-stone-500">
+                                {item.khodam.kode_khodam}
+                              </span>
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-6 shrink-0 text-right">
+                          <span className="text-xs text-stone-400">
+                            {displayDate}
+                          </span>
+                          <span
+                            className={`text-xs font-semibold w-24 text-right ${
+                              item.is_terlambat
+                                ? 'text-amber-500'
+                                : item.status_badge === 'Hari ini'
+                                ? 'text-amber-400'
+                                : 'text-stone-400'
+                            }`}
+                          >
+                            {item.status_badge}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
               </div>
             </div>
 
@@ -328,24 +312,29 @@ export default function AdminDashboardPage() {
 
                 {/* Category List with counts & progress line bars */}
                 <div className="space-y-4">
-                  {KATEGORI_ITEMS.map((cat, idx) => (
-                    <div key={idx}>
-                      <div className="flex items-center justify-between text-xs mb-1.5">
-                        <span className="text-stone-300 font-medium">
-                          {cat.nama}
-                        </span>
-                        <span className="text-stone-400 font-mono">
-                          {cat.jumlah}
-                        </span>
+                  {kategoriList.map((cat, idx) => {
+                    const count = cat.jumlah_khodam ?? 0;
+                    const percentage = `${Math.min(100, Math.round((count / maxKhodam) * 100))}%`;
+
+                    return (
+                      <div key={cat.id || idx}>
+                        <div className="flex items-center justify-between text-xs mb-1.5">
+                          <span className="text-stone-300 font-medium">
+                            {cat.nama}
+                          </span>
+                          <span className="text-stone-400 font-mono">
+                            {count}
+                          </span>
+                        </div>
+                        <div className="h-1 w-full bg-stone-800/80 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-stone-400 rounded-full"
+                            style={{ width: percentage }}
+                          />
+                        </div>
                       </div>
-                      <div className="h-1 w-full bg-stone-800/80 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-stone-400 rounded-full"
-                          style={{ width: cat.percentage }}
-                        />
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 
@@ -356,7 +345,7 @@ export default function AdminDashboardPage() {
                     Pengamal terdaftar
                   </p>
                   <p className="text-2xl font-extrabold text-white mt-1">
-                    3
+                    {pengamalTerdaftar}
                   </p>
                 </div>
                 <div className="pl-6">
