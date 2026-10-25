@@ -20,11 +20,11 @@ KhodamKu adalah aplikasi web sistem informasi peminjaman dan persewaan unit yang
 
 ### 👥 Nama Team
 
-| No. | Nama Anggota | NIM | Peran / Fokus |
-| :--: | :--- | :---: | :--- |
-| 1 | **Vanesa Rizka Alfatihah** | `102022300121` | Frontend Developer & UI/UX Specialist |
-| 2 | **Taufik Qurohman** | `102022300211` | Backend Developer & Database Architect |
-| 3 | **Ahmad Akmal Amran** | `102022300010` | Fullstack Developer & System Analyst |
+| No. | Nama Anggota | NIM | 
+| :--: | :--- | :---: | 
+| 1 | **Vanesa Rizka Alfatihah** | `102022300121` | 
+| 2 | **Taufik Qurohman** | `102022300211` | 
+| 3 | **Ahmad Akmal Amran** | `102022300010` | 
 
 ---
 
