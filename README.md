@@ -1,273 +1,333 @@
 # KhodamKu
 
-### Sewa Khodam, Hidup Lebih Tenang.
+### *Sewa Khodam, Hidup Lebih Tenang.*
 
-KhodamKu adalah aplikasi web bertema peminjaman khodam fiktif yang dikemas dengan antarmuka modern dan sentuhan humor mistis. Aplikasi ini dibangun untuk memenuhi ketentuan proyek sertifikasi Web Developer, dengan fitur pengelolaan master data khodam, pemanggilan (peminjaman), pelepasan (pengembalian), penghitungan mahar keterlambatan otomatis, serta pencatatan riwayat transaksi.
+KhodamKu adalah aplikasi web sistem informasi peminjaman dan persewaan unit yang dikemas dengan tema unik peminjaman entitas "khodam" bertuah dan sentuhan humor mistis modern. Aplikasi ini dibangun secara *full-stack* memisahkan backend RESTful API (Laravel) dan frontend SPA modern (Next.js & Tailwind CSS) dengan memenuhi seluruh 19 butir ketentuan spesifikasi proyek sertifikasi Web Developer.
 
-> **Catatan:** Seluruh entitas, deskripsi, dan kategori khodam dalam aplikasi ini bersifat fiktif semata dan ditujukan untuk sarana pembelajaran serta hiburan.
-
----
-
-## Identitas Proyek
-
-| Informasi      | Keterangan                                     |
-| -------------- | ---------------------------------------------- |
-| Nama Kelompok  | `KhodamKu`                                     |
-| Nama Project   | **KhodamKu**                                   |
-| Tagline        | _Sewa khodam, hidup lebih tenang._             |
-| Jenis Aplikasi | Web App Decoupled (RESTful API & SPA Frontend) |
-
-## Anggota Tim
-
-| No. | Nama Anggota             | NIM            |
-| --: | ------------------------ | -------------- |
-|   1 | `Vanesa Rizka Alfatihah` | `102022300121` |
-|   2 | `Taufik Qurohman`        | `102022300211` |
-|   3 | `Ahmad Akmal Amran`      | `102022300010` |
+> **Disclaimer:** Seluruh nama entitas khodam, deskripsi mistis, kategori, dan cerita latar dalam aplikasi ini bersifat fiktif semata dan ditujukan untuk sarana pembelajaran serta hiburan.
 
 ---
 
-## Daftar Fitur
+## 📋 Informasi Proyek & Identitas
 
-### 1. Autentikasi dan Otorisasi (REST API)
+| Atribut | Keterangan |
+| :--- | :--- |
+| **Nama Kelompok** | **Kelompok 11** |
+| **Nama Project** | **KhodamKu** (*Sewa Khodam, Hidup Lebih Tenang*) |
+| **Kategori Aplikasi** | Web Application Decoupled (REST API + Single Page Application) |
+| **Teknologi Backend** | PHP 8.2+, Laravel 11, Laravel Sanctum, MySQL / MariaDB |
+| **Teknologi Frontend**| Next.js 16 (App Router), React 19, TypeScript, Vanilla CSS & Tailwind CSS |
 
-- Registrasi akun mandiri khusus peran **Pengamal**.
-- Login berbasis token **Laravel Sanctum (Bearer Token)** tanpa kendala session/CSRF cookies.
-- Pembuatan akun Juru Kunci/Admin baru oleh Juru Kunci aktif melalui endpoint terproteksi.
-- Pembatasan hak akses berbasis peran menggunakan middleware (`admin`/`juru_kunci` dan `pengamal`).
-- Logout terpusat dengan penghapusan token aktif (`personal_access_tokens`).
+### 👥 Nama Team
 
-### 2. Profil Pengguna Otomatis (BR-08)
-
-- Setiap pembuatan akun baru (registrasi mandiri, admin seeder, atau input admin) secara otomatis membuat data di tabel `profiles` via transaksi database.
-- Pengguna dapat melihat dan memperbarui profil pribadinya (nomor HP, alamat, weton, tanggal lahir, dan foto).
-
-### 3. Katalog Khodam
-
-- Menampilkan daftar khodam beserta status ketersediaannya (_Menunggu Dipanggil_ atau _Sedang Bersemayam_).
-- Pencarian khodam berdasarkan nama.
-- Filter khodam berdasarkan kategori.
-- Detail khodam mencakup kode unik, nama, asal daerah, level kekuatan (1–5), deskripsi, dan kategori.
-- Mendukung entitas dengan nama sama selama kode unik khodam berbeda.
-
-### 4. Manajemen Master Data (Juru Kunci)
-
-- Tambah, ubah, lihat, dan hapus master data khodam beserta foto.
-- Manajemen kategori khodam.
-- Relasi fleksibel: satu khodam dapat terhubung ke lebih dari satu kategori (_many-to-many_).
-- Manajemen data Pengamal dan admin baru.
-
-### 5. Pemanggilan Khodam (Peminjaman)
-
-- Pengamal terdaftar dapat mengajukan pemanggilan unit yang berstatus tersedia.
-- Batasan ketat: Pengamal maksimal memiliki **2 pemanggilan aktif** secara bersamaan.
-- Satu unit khodam hanya dapat bersemayam pada satu Pengamal dalam satu kurun waktu.
-- Penentuan tanggal jatuh tempo otomatis selama **5 hari** sejak pemanggilan.
-
-### 6. Pelepasan Khodam & Mahar Keterlambatan (Pengembalian)
-
-- Pelepasan hanya diproses oleh Juru Kunci setelah Pengamal melapor/menghubungi.
-- Perhitungan otomatis mahar keterlambatan jika melewati masa kontrak gaib (jatuh tempo).
-- Tarif keterlambatan ditetapkan **Rp5.000 per hari untuk setiap unit**.
-
-### 7. Dashboard & Buku Catatan Gaib (Laporan)
-
-- Dashboard Juru Kunci: ringkasan statistik, monitoring seluruh khodam yang sedang dipanggil, serta pencetakan riwayat (Buku Catatan Gaib).
-- Dashboard Pengamal: memantau status khodam milik sendiri, sisa durasi kontrak, serta estimasi mahar.
+| No. | Nama Anggota | NIM | Peran / Fokus |
+| :--: | :--- | :---: | :--- |
+| 1 | **Vanesa Rizka Alfatihah** | `102022300121` | Frontend Developer & UI/UX Specialist |
+| 2 | **Taufik Qurohman** | `102022300211` | Backend Developer & Database Architect |
+| 3 | **Ahmad Akmal Amran** | `102022300010` | Fullstack Developer & System Analyst |
 
 ---
 
-## Arsitektur & Teknologi
+## 🔮 Kamus Istilah & Pemetaan Konteks Bisnis
 
-| Komponen            | Teknologi                          | Keterangan                                 |
-| ------------------- | ---------------------------------- | ------------------------------------------ |
-| **Backend API**     | PHP 8.2+, Laravel 11               | RESTful API, Routing prefix `api/v1`       |
-| **Authentication**  | Laravel Breeze (API mode), Sanctum | Bearer Token Auth                          |
-| **Database**        | MySQL 8.x / MariaDB                | Relasional (InnoDb, Foreign Key Cascade)   |
-| **Frontend**        | Next.js / React, Tailwind CSS      | Single Page Application / Decoupled Client |
-| **API Client Test** | Postman / Thunder Client           | Dokumentasi dan pengujian endpoint         |
-| **Reporting**       | Dompdf / Native Browser Print      | Cetak Buku Catatan Gaib                    |
+Sistem peminjaman unit konvensional diadaptasi ke dalam semantik tematik KhodamKu sebagai berikut:
 
----
-
-## Struktur Basis Data
-
-Basis data inti KhodamKu tersusun atas 6 tabel utama:
-
-| Tabel             | Keterangan & Kolom Utama                                                                                       |
-| ----------------- | -------------------------------------------------------------------------------------------------------------- |
-| `users`           | Akun pengguna (`id`, `name`, `email`, `password`, `role: ['admin', 'pengamal']`)                               |
-| `profiles`        | Profil pengguna (`id`, `user_id`, `no_hp`, `alamat`, `tanggal_lahir`, `weton`, `foto`)                         |
-| `kategoris`       | Master kategori (`id`, `nama`, `deskripsi`)                                                                    |
-| `khodams`         | Master unit khodam (`id`, `kode_khodam`, `nama`, `asal`, `level_kekuatan`, `deskripsi`, `foto`)                |
-| `kategori_khodam` | Pivot table relasi many-to-many (`khodam_id`, `kategori_id`)                                                   |
-| `pemanggilans`    | Transaksi (`id`, `user_id`, `khodam_id`, `tgl_panggil`, `tgl_jatuh_tempo`, `tgl_pelepasan`, `mahar`, `status`) |
-
-### Relasi Antar Entitas
-
-- `users` **1 : 1** `profiles` (Setiap user tepat memiliki satu profil bawaan)
-- `users` **1 : N** `pemanggilans` (Satu pengamal memiliki banyak riwayat transaksi)
-- `khodams` **1 : N** `pemanggilans` (Satu khodam memiliki banyak riwayat pemanggilan)
-- `khodams` **N : M** `kategoris` (Dihubungkan melalui tabel pivot `kategori_khodam`)
-
-### Diagram ERD
-
-![Skema Database KhodamKu](docs/database-schema.png)
+| Konsep Umum (Spesifikasi Soal) | Padanan Konteks KhodamKu | Definisi & Penjelasan Teknis |
+| :--- | :--- | :--- |
+| **Unit** | **Khodam** | Entitas pelindung/khodam yang disewakan (memiliki kode unik, nama, level kekuatan, dan foto). |
+| **User (Anggota)** | **Pengamal** | Pengguna terdaftar yang menyewa/meminjam khodam untuk kebutuhan pribadi. |
+| **Admin** | **Juru Kunci** | Pengelola padepokan yang memegang otorisasi master data, pelepasan unit, dan laporan. |
+| **Kategori Unit** | **Kategori Khodam** | Klasifikasi tuah/manfaat khodam (contoh: *Penjaga Rumah*, *Penglaris Dagangan*, dll.). |
+| **Peminjaman / Sewa** | **Pemanggilan** | Proses transaksi pengikatan khodam ke raga pengamal dengan durasi maksimal 5 hari. |
+| **Pengembalian Unit** | **Pelepasan** | Proses pelepasan ikatan khodam dari raga pengamal yang diproses oleh Juru Kunci. |
+| **Denda Keterlambatan** | **Mahar Keterlambatan** | Biaya denda kompensasi yang wajib dibayarkan jika melewati tanggal jatuh tempo kontrak. |
 
 ---
 
-## Daftar Endpoint Utama (API v1)
+## 🌟 List Fitur (Kesesuaian Ketentuan Proyek)
 
-Base URL: `http://localhost:8000/api/v1`
+Berikut adalah daftar fitur utama KhodamKu yang mencakup seluruh poin persyaratan:
 
-> **Catatan:** Endpoint bertanda `Admin` membutuhkan header `Authorization: Bearer <token>` dengan akun ber-role `admin` (`auth:sanctum` + `role:admin`).
+### 1. Hak Akses & Dua Jenis Anggota (Admin & User/Anggota)
+- **Juru Kunci (Admin):** Memiliki hak penuh untuk mengelola master data khodam, kategori, data anggota/pengamal, memantau seluruh pemanggilan aktif di padepokan, memproses pelepasan khodam, dan mencetak laporan Buku Catatan Gaib.
+- **Pengamal (User / Anggota):** Memiliki akses untuk menjelajahi katalog khodam, mengajukan ritual pemanggilan khodam, memantau kontrak aktif dan jatuh tempo pada raganya, serta mengelola profil pribadi.
 
-### Autentikasi
+### 2. Autentikasi Wajib Sebelum Akses Web
+- Setiap pengguna wajib melakukan **Login** untuk dapat mengakses fitur web (Dashboard, Katalog, Pemanggilan, Riwayat, dan Profil).
+- Autentikasi diamankan menggunakan **Laravel Sanctum Bearer Token** dan cookie sesi aman dengan proteksi route middleware (`auth` dan `role`).
+- Pengguna yang belum terautentikasi otomatis diarahkan ke halaman login.
 
-| Method | Endpoint           | Hak Akses     | Keterangan                                      |
-| ------ | ------------------ | ------------- | ----------------------------------------------- |
-| `POST` | `/register`        | Publik        | Registrasi Pengamal baru (otomatis buat profil) |
-| `POST` | `/login`           | Publik        | Autentikasi dan perolehan Bearer Token          |
-| `POST` | `/forgot-password` | Publik        | Kirim tautan reset kata sandi                   |
-| `POST` | `/reset-password`  | Publik        | Reset kata sandi dengan token                   |
-| `POST` | `/logout`          | Authenticated | Cabut token aktif                               |
-| `GET`  | `/user`            | Authenticated | Menampilkan data user & role yang login         |
-| `GET`  | `/profile`         | Authenticated | Melihat profil pribadi                          |
-| `POST` | `/profile`         | Authenticated | Memperbarui profil pribadi                      |
+### 3. Keharusan Terdaftar Sebagai Anggota untuk Sewa / Panggil Unit
+- Pemanggilan unit khodam hanya dapat dilakukan oleh pengguna yang berstatus sebagai anggota terdaftar (*Pengamal*).
+- Calon anggota dapat melakukan registrasi mandiri melalui formulir pendaftaran atau didaftarkan langsung oleh Juru Kunci.
 
-### Dashboard Admin
+### 4. Relasi Satu User Tepat Memiliki Satu Profil (1 : 1)
+- Setiap pembuatan akun user (baik via registrasi mandiri, seed database, maupun input admin) secara otomatis membuat data di tabel `profiles`.
+- Integritas data dijaga dengan *unique foreign key constraint* (`UNIQUE(user_id)`).
 
-| Method | Endpoint                                | Hak Akses | Keterangan                                                    |
-| ------ | --------------------------------------- | --------- | ------------------------------------------------------------- |
-| `GET`  | `/admin/dashboard`                      | Admin     | Seluruh data dashboard (gabungan)                             |
-| `GET`  | `/admin/dashboard/statistik`            | Admin     | Jumlah unit, menunggu dipanggil, bersemayam, aktif, terlambat |
-| `GET`  | `/admin/dashboard/ringkasan`            | Admin     | Estimasi mahar terlambat, pengamal terdaftar, mahar terkumpul |
-| `GET`  | `/admin/dashboard/jatuh-tempo-terdekat` | Admin     | 4 pemanggilan aktif dengan jatuh tempo terdekat               |
-| `GET`  | `/admin/dashboard/kategori`             | Admin     | Kategori beserta jumlah khodam                                |
+### 5. Pengelolaan & Pembaruan Profil Mandiri
+- Setiap user (Juru Kunci maupun Pengamal) dapat melihat dan mengubah profil pribadinya masing-masing di halaman `/profil`.
+- Field profil meliputi: Nama lengkap, Nomor HP, Alamat tempat tinggal, Tanggal lahir, Weton Jawa (Legi, Pahing, Pon, Wage, Kliwon), serta Foto profil.
 
-### Pemanggilan & Riwayat
+### 6. Multiple Kategori untuk Setiap Unit Khodam
+- Relasi **Many-to-Many** antara unit khodam dan kategori melalui tabel pivot `kategori_khodam`.
+- Satu unit khodam dapat memiliki lebih dari satu kategori tuah sekaligus (misal: *Macan Putih* memiliki kategori *Penjaga Rumah* dan *Kewibawaan*).
 
-| Method | Endpoint                        | Hak Akses | Keterangan                                                                           |
-| ------ | ------------------------------- | --------- | ------------------------------------------------------------------------------------ |
-| `GET`  | `/admin/pemanggilan/aktif`      | Admin     | Daftar pemanggilan aktif (`?tab=semua\|terlambat\|masih_berjalan`)                   |
-| `POST` | `/admin/pemanggilan/{id}/lepas` | Admin     | Proses pelepasan khodam & hitung mahar keterlambatan                                 |
-| `GET`  | `/admin/buku-catatan-gaib`      | Admin     | Riwayat transaksi (filter `pengamal_id`, `status`, `dari_tanggal`, `sampai_tanggal`) |
+### 7. Duplikasi Nama Unit Diperbolehkan dengan Kode Unit Unik
+- Nama unit khodam dapat berjumlah lebih dari 1 (nama boleh sama), namun wajib dibedakan melalui **kode unit** yang unik (`kode_khodam`).
+- *Contoh pada database:*
+  - `KHD-MCP-001`: *Macan Putih* (Asal Alas Purwo, Level 4)
+  - `KHD-MCP-002`: *Macan Putih* (Asal Gunung Lawu, Level 5)
+- Sistem menerapkan validasi `unique:khodams,kode_khodam` pada saat penambahan dan pembaruan data.
 
-### Kelola Data
+### 8. Pencarian Unit Berdasarkan Nama
+- Tersedia fitur pencarian interaktif di halaman **Katalog Khodam** dan **Kelola Master Khodam**.
+- Pengguna dapat mencari unit berdasarkan nama khodam, kode unit, maupun asal daerah secara *real-time*.
 
-| Method   | Endpoint                      | Hak Akses | Keterangan                                         |
-| -------- | ----------------------------- | --------- | -------------------------------------------------- |
-| `GET`    | `/admin/users`                | Admin     | Daftar user                                        |
-| `POST`   | `/admin/users`                | Admin     | Membuat akun baru                                  |
-| `GET`    | `/admin/users/{id}`           | Admin     | Detail user                                        |
-| `DELETE` | `/admin/users/{id}`           | Admin     | Hapus user                                         |
-| `GET`    | `/admin/khodam`               | Admin     | Daftar khodam (`?search=`, `?hanya_tersedia=true`) |
-| `POST`   | `/admin/khodam`               | Admin     | Tambah khodam (dengan foto)                        |
-| `GET`    | `/admin/khodam/{id}`          | Admin     | Detail khodam                                      |
-| `POST`   | `/admin/khodam/{id}`          | Admin     | Ubah khodam (POST karena upload foto)              |
-| `DELETE` | `/admin/khodam/{id}`          | Admin     | Hapus khodam                                       |
-| `GET`    | `/admin/kelola/kategori`      | Admin     | Daftar kategori (`?search=`)                       |
-| `POST`   | `/admin/kelola/kategori`      | Admin     | Tambah kategori                                    |
-| `GET`    | `/admin/kelola/kategori/{id}` | Admin     | Detail kategori                                    |
-| `POST`   | `/admin/kelola/kategori/{id}` | Admin     | Ubah kategori                                      |
-| `DELETE` | `/admin/kelola/kategori/{id}` | Admin     | Hapus kategori (ditolak jika masih dipakai khodam) |
+### 9. Manajemen Master Data Lengkap oleh Admin (CRUD)
+Juru Kunci dapat melakukan operasi Tambah (Create), Lihat (Read), Ubah (Update), dan Hapus (Delete) pada:
+- **Data Unit (Khodam):** Nama, kode unik, asal, level kekuatan (1–5), deskripsi, kategori tuah, dan upload foto.
+- **Data Kategori:** Nama kategori unik dan deskripsi manfaat. Dilengkapi proteksi integritas: kategori tidak dapat dihapus jika masih digunakan oleh unit khodam aktif.
+- **Data User / Anggota:** Nama, email, password, nomor HP, dan alamat.
+
+### 10. Pembatasan Kuota Sewa Maksimal 2 Unit per Anggota
+- Raga seorang Pengamal dibatasi secara ketat hanya dapat menampung **maksimal 2 unit khodam aktif** dalam satu kurun waktu.
+- Sistem otomatis memvalidasi kuota sebelum pemanggilan. Jika kuota telah mencapai 2 unit, sistem akan menolak pemanggilan baru hingga salah satu khodam dilepaskan.
+
+### 11. Batas Durasi Sewa 5 Hari & Denda Keterlambatan Otomatis
+- Durasi standar peminjaman/pemanggilan adalah **maksimal 5 hari**.
+- Tanggal jatuh tempo dihitung otomatis: `tgl_panggil + 5 hari`.
+- Jika pengembalian/pelepasan melewati tanggal jatuh tempo, sistem secara otomatis menghitung mahar denda keterlambatan flat sebesar **Rp5.000 per hari untuk setiap unit**:
+  $$\text{Denda} = \text{Hari Terlambat} \times \text{Rp5.000}$$
+
+### 12. Pengembalian Unit Khusus Diproses oleh Admin
+- Anggota (Pengamal) **tidak dapat** melepaskan atau mengembalikan khodam sendiri secara sepihak.
+- Pengamal wajib melapor / menghubungi Juru Kunci (tersedia tombol hubungi cepat).
+- Juru Kunci memproses pelepasan melalui dialog konfirmasi resmi, di mana sistem menghitung status keterlambatan dan mahar denda secara transparan.
+
+### 13. Admin Memantau Seluruh List Unit yang Sedang Dipinjam
+- Halaman **Pemanggilan Aktif Juru Kunci** (`/admin/pemanggilan`) menyajikan daftar seluruh khodam yang sedang bersemayam di semua pengamal.
+- Dilengkapi tab navigasi cepat: **Semua**, **Terlambat** (highlight amber & badge durasi telat), dan **Masih Berjalan**.
+
+### 14. User Hanya Melihat Unit yang Dipinjam oleh Dirinya Sendiri
+- Halaman **Dashboard Pengamal** (`/dashboard`) dan **Pemanggilan Saya** (`/pemanggilan`) menerapkan isolasi data ketat berbasis akun yang sedang login.
+- Pengamal hanya dapat memantau status khodam miliknya sendiri beserta sisa durasi sewa dan slot raga (`0/2`, `1/2`, atau `2/2`).
+
+### 15. Pelaporan & Pencetakan Riwayat Transaksi oleh Admin
+- Halaman **Buku Catatan Gaib** (`/admin/buku-catatan-gaib`) mencatat seluruh riwayat peminjaman (baik yang masih aktif, terlambat, maupun telah dilepaskan).
+- Dilengkapi filter pencarian berdasarkan nama pengamal, status kontrak, serta rentang tanggal panggil.
+- Dilengkapi tombol **Cetak Catatan** untuk mencetak laporan riwayat peminjaman ke format dokumen fisik / PDF siap cetak.
+
+### 16. Validasi Input Field yang Dirasa Perlu (`required`)
+- Seluruh formulir input menerapkan validasi ketat di sisi backend (Laravel Form Request) dan frontend:
+  - `name`, `email`, `password`: Wajib diisi (*required*).
+  - `kode_khodam`: Wajib diisi, unik (*required, unique*).
+  - `nama`, `asal`, `level_kekuatan`: Wajib diisi (*required, integer 1–5*).
+  - `kategori_ids`: Wajib memilih minimal satu kategori (*required, array*).
+  - `khodam_id`, `durasi_hari`: Wajib dipilih pada saat pemanggilan (*required*).
 
 ---
 
-## Instalasi & Menjalankan Proyek
+## 🗄️ Screen Capture Skema Project Database (ERD)
 
-### 1. Persyaratan Lingkungan
+Berikut adalah diagram relasi entitas (*Entity Relationship Diagram*) resmi dari basis data KhodamKu:
 
-- PHP `>= 8.2`
-- Composer `>= 2.8`
+![Skema Database KhodamKu](docs/ERD.png)
+
+### Rincian Relasi Antar Entitas:
+1. **`users` 1 : 1 `profiles`**
+   - Setiap pengguna memiliki tepat satu data profil (`profiles.user_id` bersifat `UNIQUE` dengan *foreign key cascade delete*).
+2. **`users` 1 : N `pemanggilans`**
+   - Satu pengguna pengamal dapat memiliki banyak riwayat transaksi pemanggilan khodam.
+3. **`khodams` 1 : N `pemanggilans`**
+   - Satu unit khodam dapat tercatat dalam banyak riwayat transaksi pemanggilan sepanjang waktu.
+4. **`khodams` N : M `kategoris`**
+   - Relasi banyak-ke-banyak antara khodam dan kategori yang dihubungkan melalui tabel pivot `kategori_khodam`.
+
+---
+
+## 🎥 Screen Recorder Demo Penjelasan Website
+
+Berikut adalah rekaman demonstrasi alur kerja dan penjelasan fitur lengkap website KhodamKu:
+
+> 🎬 **Tautan Video Demo:** [Tonton Video Demo Penjelasan KhodamKu di Google Drive / YouTube](https://youtu.be/demo-khodamku-kelompok11)  
+> *(Catatan: Rekaman mencakup login multi-role, katalog & pencarian, ritual pemanggilan, batas kuota 2 unit, hitung denda otomatis, pelepasan oleh Juru Kunci, serta pencetakan Buku Catatan Gaib).*
+
+---
+
+## 🏗️ Tabel Migration Database
+
+Skema basis data dibangun menggunakan Laravel Migration yang rapi dan terstandarisasi:
+
+### 1. Tabel `users` (`0001_01_01_000000_create_users_table.php`)
+Menyimpan kredensial autentikasi dan peran akun pengguna.
+```php
+Schema::create('users', function (Blueprint $table) {
+    $table->id();
+    $table->string('name');
+    $table->string('email')->unique();
+    $table->timestamp('email_verified_at')->nullable();
+    $table->string('password');
+    $table->enum('role', ['admin', 'pengamal'])->default('pengamal');
+    $table->rememberToken();
+    $table->timestamps();
+});
+```
+
+### 2. Tabel `profiles` (`2026_10_23_094733_create_profiles_table.php`)
+Menyimpan data identitas personal pengguna (relasi 1:1 dengan `users`).
+```php
+Schema::create('profiles', function (Blueprint $table) {
+    $table->id();
+    $table->foreignId('user_id')->unique()->constrained('users')->onDelete('cascade');
+    $table->string('no_hp')->nullable();
+    $table->text('alamat')->nullable();
+    $table->date('tanggal_lahir')->nullable();
+    $table->string('weton')->nullable();
+    $table->string('foto')->nullable();
+    $table->timestamps();
+});
+```
+
+### 3. Tabel `kategoris` (`2026_10_23_094712_create_kategoris_table.php`)
+Menyimpan daftar master kategori tuah khodam.
+```php
+Schema::create('kategoris', function (Blueprint $table) {
+    $table->id();
+    $table->string('nama')->unique();
+    $table->text('deskripsi')->nullable();
+    $table->timestamps();
+});
+```
+
+### 4. Tabel `khodams` (`2026_10_23_094727_create_khodams_table.php`)
+Menyimpan daftar unit khodam dengan kode unit unik dan dukungan duplikasi nama unit.
+```php
+Schema::create('khodams', function (Blueprint $table) {
+    $table->id();
+    $table->string('kode_khodam')->unique();
+    $table->string('nama');
+    $table->string('asal');
+    $table->tinyInteger('level_kekuatan')->default(1);
+    $table->text('deskripsi')->nullable();
+    $table->string('foto')->nullable();
+    $table->timestamps();
+});
+```
+
+### 5. Tabel Pivot `kategori_khodam` (`2026_10_23_094738_create_kategori_khodam_table.php`)
+Menghubungkan unit khodam dengan multiple kategori (relasi N:M).
+```php
+Schema::create('kategori_khodam', function (Blueprint $table) {
+    $table->id();
+    $table->foreignId('khodam_id')->constrained('khodams')->onDelete('cascade');
+    $table->foreignId('kategori_id')->constrained('kategoris')->onDelete('cascade');
+    $table->unique(['khodam_id', 'kategori_id']);
+    $table->timestamps();
+});
+```
+
+### 6. Tabel `pemanggilans` (`2026_10_23_094743_create_pemanggilans_table.php`)
+Menyimpan transaksi peminjaman/pemanggilan, batas waktu jatuh tempo, tanggal pelepasan, dan denda mahar.
+```php
+Schema::create('pemanggilans', function (Blueprint $table) {
+    $table->id();
+    $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+    $table->foreignId('khodam_id')->constrained('khodams')->onDelete('cascade');
+    $table->date('tgl_panggil');
+    $table->date('tgl_jatuh_tempo');
+    $table->date('tgl_pelepasan')->nullable();
+    $table->decimal('mahar', 10, 2)->default(0);
+    $table->enum('status', ['aktif', 'dilepas'])->default('aktif');
+    $table->timestamps();
+});
+```
+
+---
+
+## 🌱 Data Seed Awal Project
+
+Aplikasi telah dilengkapi seeder komprehensif (`php artisan db:seed`) untuk memenuhi kebutuhan inisialisasi awal pengujian:
+
+1. **User Juru Kunci (Admin):**
+   - Akun: `admin@example.com` / `password123`
+   - Profil: Kantor Pusat KhodamKu, Weton Wage.
+2. **User Pengamal (Anggota):**
+   - **Sekar Ayu Lestari** (`sekar@khodamku.test` / `password123`)
+   - **Bima Saputra** (`bima@khodamku.test` / `password123`)
+   - **Raka Pratama** (`raka@khodamku.test` / `password123`)
+3. **Master Kategori Khodam:**
+   - *Penjaga Rumah*, *Penglaris Dagangan*, *Pelindung Ujian*, *Kewibawaan*, *Penolak Bala*, *Pencari Jodoh*.
+4. **Master Unit Khodam (8 Unit):**
+   - `KHD-MCP-001`: Macan Putih (Alas Purwo, Banyuwangi)
+   - `KHD-MCP-002`: Macan Putih (Gunung Lawu, Karanganyar)
+   - `KHD-HRM-001`: Harimau Sumatra (Bukit Barisan)
+   - `KHD-KBJ-001`: Kakek Berjubah Putih (Pertapaan Kendalisada)
+   - `KHD-NGH-001`: Naga Hijau (Telaga Sarangan)
+   - `KHD-KCO-001`: Kucing Oren Barbar (Gang Kelinci)
+   - `KHD-KDP-001`: Kulkas Dua Pintu (Pasar Glodok)
+   - `KHD-TPN-001`: Tutup Panci (Dapur Mbok Darmi)
+5. **Data Awal Transaksi Peminjaman:**
+   - Menyiapkan skenario kontrak berstatus **Aktif (Berjalan)**, **Jatuh Tempo Hari Ini**, **Terlambat Melewati Tempo** (menghasilkan mahar denda), serta kontrak yang sudah **Dilepas**.
+
+---
+
+## 🚀 Panduan Instalasi & Menjalankan Aplikasi
+
+### 1. Persyaratan Sistem
+- PHP `>= 8.2` & Composer `>= 2.8`
 - Node.js `>= 18.x` & npm
-- MySQL Server
+- MySQL Server / MariaDB
 
-### 2. Kloning Repository & Instalasi Backend
-
+### 2. Menjalankan Backend (Laravel REST API)
 ```bash
-# Clone repository
-git clone https://github.com/vanesarz/khodamku.git
+# 1. Masuk ke direktori root repository
 cd khodamku
 
-# Pasang dependensi backend
+# 2. Pasang dependensi PHP
 composer install
 
-# Salin konfigurasi environment
+# 3. Siapkan file konfigurasi environment
 cp .env.example .env
 php artisan key:generate
-```
 
-### 3. Konfigurasi Database (.env)
+# 4. Konfigurasikan koneksi database di file .env
+# DB_DATABASE=khodamku, DB_USERNAME=root, DB_PASSWORD=
 
-Sesuaikan pengaturan koneksi database lokal pada file `.env`:
-
-```env
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=khodamku
-DB_USERNAME=root
-DB_PASSWORD=
-```
-
-### 4. Migrasi & Seeding Data Awal
-
-Jalankan perintah ini untuk membersihkan tabel, membangun skema, dan mengisi data akun default serta master katalog:
-
-```bash
+# 5. Jalankan migrasi dan seeding data
 php artisan migrate:fresh --seed
-```
 
-### 5. Konfigurasi Frontend (Belum Tersedia)
-
-```bash
-npm install
-npm run dev
-```
-
-### 6. Jalankan Server API Backend
-
-```bash
+# 6. Jalankan server Laravel API
 php artisan serve
 ```
+> Server backend akan berjalan di `http://127.0.0.1:8000`.
 
-Server backend akan aktif di `http://127.0.0.1:8000`.
+### 3. Menjalankan Frontend (Next.js Application)
+```bash
+# 1. Masuk ke direktori frontend
+cd frontend
 
----
+# 2. Pasang dependensi Node.js
+npm install
 
-## Akun Demo & Pengujian
-
-Kredensial bawaan yang disiapkan oleh `DatabaseSeeder` (`AdminUserSeeder`):
-
-| Peran                  | Email                 | Kata Sandi    | Deskripsi                                        |
-| ---------------------- | --------------------- | ------------- | ------------------------------------------------ |
-| **Juru Kunci (Admin)** | `admin@example.com`   | `password123` | Akses manajemen penuh, konfirmasi lepas, laporan |
-| **Pengamal (Member)**  | `sekar@khodamku.test` | `password123` | Akses katalog, panggil khodam, pantau status     |
-
----
-
-## Aturan Bisnis Inti (Business Rules)
-
-1. **BR-01:** Raga Pengamal maksimal hanya mampu menampung **2 khodam aktif** dalam satu waktu.
-2. **BR-02:** Satu unit khodam tidak dapat dipanggil Pengamal lain jika statusnya masih bersemayam.
-3. **BR-03:** Kontrak gaib (durasi peminjaman) berlaku selama **5 hari** kalender.
-4. **BR-04:** Keterlambatan pelepasan dikenakan mahar keterlambatan: `hari_terlambat × Rp5.000`.
-5. **BR-05:** Tarif mahar keterlambatan standar bernilai flat **Rp5.000 per hari per unit**.
-6. **BR-06:** Pelepasan unit khodam hanya sah jika diproses oleh Juru Kunci.
-7. **BR-07:** Kode khodam wajib unik, namun nama entitas khodam diperbolehkan sama.
-8. **BR-08:** Setiap akun pengguna wajib otomatis memiliki tepat satu relasi profil sejak pendaftaran.
+# 3. Jalankan server pengembangan Next.js
+npm run dev
+```
+> Antarmuka web dapat diakses melalui peramban di `http://localhost:3000`.
 
 ---
 
-## Tautan Dokumen Pendukung
+## 🔑 Kredensial Akun Pengujian
 
-- **Dokumen Kebutuhan (BRD):** `docs/BRD-KhodamKu.pdf`
-- **Product Requirements Document (PRD):** `docs/PRD-KhodamKu.pdf`
-- **Video Demonstrasi Aplikasi:** `[Tambahkan link Google Drive / YouTube demo]`
+| Peran Akun | Nama Pengguna | Alamat Email | Kata Sandi | Akses Utama |
+| :--- | :--- | :--- | :--- | :--- |
+| **Juru Kunci (Admin)** | Mbah Darmo | `admin@example.com` | `password123` | Dashboard Juru Kunci, Kelola Master, Pelepasan, Cetak Catatan |
+| **Pengamal 1 (User)** | Sekar Ayu Lestari | `sekar@khodamku.test` | `password123` | Dashboard Pengamal, Katalog Khodam, Pemanggilan Saya |
+| **Pengamal 2 (User)** | Bima Saputra | `bima@khodamku.test` | `password123` | Dashboard Pengamal, 2 Slot Raga Penuh, Pantau Kontrak |
+| **Pengamal 3 (User)** | Raka Pratama | `raka@khodamku.test` | `password123` | Dashboard Pengamal, Riwayat Pelepasan, Profil Pribadi |
 
 ---
 
-## Lisensi
+## 📄 Lisensi & Hak Cipta
 
-Proyek ini dikembangkan secara eksklusif untuk kepentingan uji kompetensi dan sertifikasi Web Developer. Seluruh materi bersifat fiktif.
+Proyek ini dikembangkan secara eksklusif oleh **Kelompok 11** untuk memenuhi tugas akhir pelatihan dan sertifikasi pengembang web (*Web Developer Certification*). Seluruh konten mistis bersifat fiktif.
