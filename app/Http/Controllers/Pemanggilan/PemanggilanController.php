@@ -6,6 +6,7 @@ use App\Contracts\KebijakanDenda;
 use App\Http\Controllers\Controller;
 use App\Models\Khodam;
 use App\Services\PemanggilanService;
+use App\Support\Halaman;
 use App\Support\StatusJatuhTempo;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -17,6 +18,8 @@ class PemanggilanController extends Controller
     // 1. Ambil daftar katalog khodam
     public function index(Request $request): JsonResponse
     {
+        $request->validate(Halaman::ATURAN);
+
         $query = Khodam::with('kategoris')
             ->withExists(['pemanggilans as is_bersemayam' => function ($q) {
                 $q->where('status', 'aktif');
@@ -45,7 +48,10 @@ class PemanggilanController extends Controller
             });
         }
 
-        $khodams = $query->orderBy('nama', 'asc')->get()->map(function ($item) {
+        $query->orderBy('nama', 'asc');
+        $halaman = Halaman::dari($query, $request);
+
+        $khodams = ($halaman ? $halaman->getCollection() : $query->get())->map(function ($item) {
             return [
                 'id' => $item->id,
                 'kode_khodam' => $item->kode_khodam,
@@ -63,10 +69,16 @@ class PemanggilanController extends Controller
             ];
         });
 
-        return response()->json([
+        $respons = [
             'message' => 'Daftar khodam berhasil dimuat',
             'data' => $khodams,
-        ]);
+        ];
+
+        if ($halaman) {
+            $respons['meta'] = Halaman::meta($halaman);
+        }
+
+        return response()->json($respons);
     }
 
     // 2. Simpan pemanggilan khodam baru oleh Pengamal

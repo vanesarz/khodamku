@@ -14,9 +14,13 @@ class AdminBukuCatatanGaibTest extends TestCase
     use RefreshDatabase;
 
     private User $admin;
+
     private User $pengamal1;
+
     private User $pengamal2;
+
     private Khodam $khodam1;
+
     private Khodam $khodam2;
 
     protected function setUp(): void
@@ -237,5 +241,47 @@ class AdminBukuCatatanGaibTest extends TestCase
         $response = $this->getJson('/api/v1/admin/buku-catatan-gaib');
 
         $response->assertStatus(401);
+    }
+
+    public function test_pagination_opsional_dengan_ringkasan_seluruh_data(): void
+    {
+        foreach ([10000, 5000, 0] as $mahar) {
+            Pemanggilan::create([
+                'user_id' => $this->pengamal1->id,
+                'khodam_id' => $this->khodam1->id,
+                'tgl_panggil' => Carbon::today()->subDays(5)->toDateString(),
+                'tgl_jatuh_tempo' => Carbon::today()->toDateString(),
+                'tgl_pelepasan' => Carbon::today()->toDateString(),
+                'status' => 'dilepas',
+                'mahar' => $mahar,
+            ]);
+        }
+
+        $this->actingAs($this->admin, 'sanctum')
+            ->getJson('/api/v1/admin/buku-catatan-gaib?per_page=2&page=2')
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('meta.current_page', 2)
+            ->assertJsonPath('meta.per_page', 2)
+            ->assertJsonPath('meta.total', 3)
+            ->assertJsonPath('meta.last_page', 2)
+            ->assertJsonPath('ringkasan.total_transaksi', 3)
+            ->assertJsonPath('ringkasan.total_mahar', 15000);
+    }
+
+    public function test_tanpa_per_page_respons_tidak_memiliki_meta(): void
+    {
+        $this->actingAs($this->admin, 'sanctum')
+            ->getJson('/api/v1/admin/buku-catatan-gaib')
+            ->assertOk()
+            ->assertJsonMissingPath('meta');
+    }
+
+    public function test_per_page_tidak_valid_ditolak(): void
+    {
+        $this->actingAs($this->admin, 'sanctum')
+            ->getJson('/api/v1/admin/buku-catatan-gaib?per_page=500')
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['per_page']);
     }
 }

@@ -221,7 +221,7 @@ export default function LoginPage() {
                 <div className="grid grid-cols-2 gap-2.5">
                   {/* Juru Kunci Demo Box */}
                   <div
-                    onClick={() => handleSelectDemo('admin@demo.test')}
+                    onClick={() => handleSelectDemo('admin@example.com')}
                     className="cursor-pointer rounded-lg border border-amber-500/30 bg-amber-950/20 p-2.5 hover:border-amber-500/70 hover:bg-amber-950/40 transition-all group"
                   >
                     <p className="text-xs font-bold text-amber-300 group-hover:text-amber-200 transition-colors">
@@ -232,7 +232,7 @@ export default function LoginPage() {
 
                   {/* Pengamal 1: Raka */}
                   <div
-                    onClick={() => handleSelectDemo('pengamal@demo.test')}
+                    onClick={() => handleSelectDemo('raka@khodamku.test')}
                     className="cursor-pointer rounded-lg border border-stone-800/80 bg-stone-950/40 p-2.5 hover:border-stone-700 hover:bg-stone-900/60 transition-all group"
                   >
                     <p className="text-xs font-bold text-white group-hover:text-amber-300 transition-colors">

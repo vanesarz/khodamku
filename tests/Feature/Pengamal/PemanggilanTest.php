@@ -144,6 +144,41 @@ class PemanggilanTest extends TestCase
             ->assertJsonPath('data.1.is_terlambat', false);
     }
 
+    public function test_katalog_khodam_tanpa_per_page_mengembalikan_semua_tanpa_meta(): void
+    {
+        $this->buatKhodam('KHD-001');
+        $this->buatKhodam('KHD-002');
+
+        $this->actingAs($this->pengamal, 'sanctum')
+            ->getJson('/api/v1/khodam')
+            ->assertOk()
+            ->assertJsonCount(2, 'data')
+            ->assertJsonMissingPath('meta');
+    }
+
+    public function test_katalog_khodam_dengan_per_page_dipotong_per_halaman(): void
+    {
+        foreach (['KHD-001', 'KHD-002', 'KHD-003'] as $kode) {
+            $this->buatKhodam($kode);
+        }
+
+        $this->actingAs($this->pengamal, 'sanctum')
+            ->getJson('/api/v1/khodam?per_page=2')
+            ->assertOk()
+            ->assertJsonCount(2, 'data')
+            ->assertJsonPath('data.0.kode_khodam', 'KHD-001')
+            ->assertJsonPath('meta.total', 3)
+            ->assertJsonPath('meta.last_page', 2);
+    }
+
+    public function test_katalog_khodam_per_page_tidak_valid_ditolak(): void
+    {
+        $this->actingAs($this->pengamal, 'sanctum')
+            ->getJson('/api/v1/khodam?per_page=0')
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['per_page']);
+    }
+
     public function test_daftar_aktif_menampilkan_badge_hari_ini(): void
     {
         $this->buatPemanggilanAktif($this->pengamal, $this->buatKhodam('KHD-001'), 0);

@@ -88,7 +88,7 @@ Berikut adalah daftar fitur utama KhodamKu yang mencakup seluruh poin persyarata
 Juru Kunci dapat melakukan operasi Tambah (Create), Lihat (Read), Ubah (Update), dan Hapus (Delete) pada:
 - **Data Unit (Khodam):** Nama, kode unik, asal, level kekuatan (1–5), deskripsi, kategori tuah, dan upload foto.
 - **Data Kategori:** Nama kategori unik dan deskripsi manfaat. Dilengkapi proteksi integritas: kategori tidak dapat dihapus jika masih digunakan oleh unit khodam aktif.
-- **Data User / Anggota:** Nama, email, password, nomor HP, dan alamat.
+- **Data User / Anggota:** Nama, email, password, nomor HP, dan alamat. Data anggota diubah lewat ikon pensil di halaman **Pengamal** (`POST /admin/users/{id}`); peran (`role`) tidak bisa diubah lewat form ini.
 
 ### 10. Pembatasan Kuota Sewa Maksimal 2 Unit per Anggota
 - Raga seorang Pengamal dibatasi secara ketat hanya dapat menampung **maksimal 2 unit khodam aktif** dalam satu kurun waktu.
@@ -125,6 +125,11 @@ Juru Kunci dapat melakukan operasi Tambah (Create), Lihat (Read), Ubah (Update),
   - `nama`, `asal`, `level_kekuatan`: Wajib diisi (*required, integer 1–5*).
   - `kategori_ids`: Wajib memilih minimal satu kategori (*required, array*).
   - `khodam_id`, `durasi_hari`: Wajib dipilih pada saat pemanggilan (*required*).
+
+### 17. Pagination Opsional untuk Data Besar
+- Endpoint `GET /khodam`, `GET /admin/khodam`, dan `GET /admin/buku-catatan-gaib` menerima parameter `per_page` (1–100) dan `page`.
+- Tanpa `per_page`, respons tetap mengembalikan seluruh data seperti sebelumnya. Dengan `per_page`, respons dipotong per halaman dan diberi objek `meta`.
+- Pada Buku Catatan Gaib, `ringkasan` tetap menghitung seluruh transaksi yang lolos filter, bukan hanya halaman yang tampil.
 
 ---
 

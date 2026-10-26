@@ -6,6 +6,7 @@ use App\Contracts\KebijakanDenda;
 use App\Http\Controllers\Controller;
 use App\Models\Pemanggilan;
 use App\Models\User;
+use App\Support\Halaman;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -14,6 +15,8 @@ class AdminBukuCatatanGaibController extends Controller
 {
     public function index(Request $request, KebijakanDenda $kebijakanDenda): JsonResponse
     {
+        $request->validate(Halaman::ATURAN);
+
         $today = Carbon::today();
 
         // 1. Inisialisasi query relasi
@@ -46,30 +49,17 @@ class AdminBukuCatatanGaibController extends Controller
         }
 
         // Urutkan transaksi dari yang paling baru
-        $transaksi = $query->orderBy('id', 'desc')->get();
+        $query->orderBy('id', 'desc');
+
+        // Salinan query tanpa relasi untuk ringkasan seluruh data saat respons dipotong per halaman
+        $queryRingkasan = (clone $query)->setEagerLoads([]);
+        $halaman = Halaman::dari($query, $request);
+        $transaksi = $halaman ? $halaman->getCollection() : $query->get();
 
         // 5. Transformasi Data & Hitung Kalkulasi Mahar
         $totalMahar = 0;
         $listData = $transaksi->map(function ($item) use ($today, $kebijakanDenda, &$totalMahar) {
-            $jatuhTempo = Carbon::parse($item->tgl_jatuh_tempo)->startOfDay();
-            $isAktif = $item->status === 'aktif';
-
-            // Tentukan status badge dan perhitungan mahar
-            if ($isAktif) {
-                if ($today->gt($jatuhTempo)) {
-                    $mahar = $kebijakanDenda->hitung($jatuhTempo, $today);
-                    $statusLabel = 'Terlambat';
-                    $maharFormatted = '~Rp'.number_format($mahar, 0, ',', '.');
-                } else {
-                    $mahar = 0;
-                    $statusLabel = 'Aktif';
-                    $maharFormatted = '~Rp0';
-                }
-            } else {
-                $mahar = (float) $item->mahar;
-                $statusLabel = 'Dilepas';
-                $maharFormatted = 'Rp'.number_format($mahar, 0, ',', '.');
-            }
+            [$mahar, $statusLabel, $maharFormatted] = $this->hitungMahar($item, $today, $kebijakanDenda);
 
             $totalMahar += $mahar;
 
@@ -101,10 +91,20 @@ class AdminBukuCatatanGaibController extends Controller
             ->orderBy('name', 'asc')
             ->get();
 
-        return response()->json([
+        $totalTransaksi = $listData->count();
+
+        // Ringkasan tetap mencakup seluruh transaksi yang lolos filter, bukan hanya halaman ini
+        if ($halaman) {
+            $totalTransaksi = $halaman->total();
+            $totalMahar = $queryRingkasan
+                ->get(['id', 'status', 'tgl_jatuh_tempo', 'mahar'])
+                ->sum(fn ($item) => $this->hitungMahar($item, $today, $kebijakanDenda)[0]);
+        }
+
+        $respons = [
             'message' => 'Data Buku Catatan Gaib berhasil dimuat',
             'ringkasan' => [
-                'total_transaksi' => $listData->count(),
+                'total_transaksi' => $totalTransaksi,
                 'total_mahar' => $totalMahar,
                 'total_mahar_formatted' => 'Rp'.number_format($totalMahar, 0, ',', '.'),
             ],
@@ -118,6 +118,36 @@ class AdminBukuCatatanGaibController extends Controller
                 ],
             ],
             'data' => $listData,
-        ]);
+        ];
+
+        if ($halaman) {
+            $respons['meta'] = Halaman::meta($halaman);
+        }
+
+        return response()->json($respons);
+    }
+
+    /**
+     * Mahar, label status, dan teks mahar untuk satu transaksi.
+     *
+     * @return array{0: int|float, 1: string, 2: string}
+     */
+    private function hitungMahar(Pemanggilan $item, Carbon $today, KebijakanDenda $kebijakanDenda): array
+    {
+        $jatuhTempo = Carbon::parse($item->tgl_jatuh_tempo)->startOfDay();
+
+        if ($item->status !== 'aktif') {
+            $mahar = (float) $item->mahar;
+
+            return [$mahar, 'Dilepas', 'Rp'.number_format($mahar, 0, ',', '.')];
+        }
+
+        if ($today->gt($jatuhTempo)) {
+            $mahar = $kebijakanDenda->hitung($jatuhTempo, $today);
+
+            return [$mahar, 'Terlambat', '~Rp'.number_format($mahar, 0, ',', '.')];
+        }
+
+        return [0, 'Aktif', '~Rp0'];
     }
 }

@@ -239,6 +239,8 @@ Katalog khodam beserta status ketersediaan.
 | search         | cari di `nama` atau `kode_khodam`          |
 | kategori_id    | filter berdasarkan kategori                |
 | hanya_tersedia | `true`/`1` hanya yang "Menunggu Dipanggil" |
+| per_page       | 1–100. Aktifkan pagination (lihat bawah)   |
+| page           | nomor halaman, dipakai bersama `per_page`  |
 
 **Response 200**
 
@@ -264,7 +266,14 @@ Katalog khodam beserta status ketersediaan.
 
 - `status`: `"Menunggu Dipanggil"` atau `"Sedang Bersemayam"`.
 - `foto` sudah berupa URL penuh atau `null`.
-- Tanpa pagination.
+- Tanpa `per_page`: seluruh data dikembalikan tanpa `meta` (perilaku lama).
+- Dengan `per_page`: `data` berisi satu halaman, ditambah objek `meta`:
+
+```json
+"meta": { "current_page": 1, "per_page": 20, "total": 57, "last_page": 3 }
+```
+
+- `per_page` di luar 1–100 atau bukan angka: 422 dengan error pada `per_page`.
 
 ### POST `/pemanggilan`
 
@@ -584,11 +593,13 @@ Riwayat semua pemanggilan (semua pengamal), terbaru dulu.
 | pengamal_id                  | ID user pengamal                                   |
 | dari_tanggal, sampai_tanggal | `YYYY-MM-DD`, berdasarkan `tgl_panggil`            |
 | status                       | `semua` (default), `aktif`, `terlambat`, `dilepas` |
+| per_page, page               | pagination opsional, sama seperti `GET /khodam`    |
 
 Struktur sama dengan [`/riwayat`](#5-pengamal-riwayat), dengan tambahan:
 
 - tiap item `data` memiliki `pengamal` (nama).
 - `filter_options.pengamals`: `[{ "id": 5, "name": "Budi" }]` untuk dropdown filter.
+- Dengan `per_page`: respons diberi `meta`, dan `ringkasan.total_transaksi` serta `ringkasan.total_mahar` tetap dihitung dari **seluruh** transaksi yang lolos filter, bukan hanya halaman ini.
 
 ---
 

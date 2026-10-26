@@ -30,8 +30,11 @@ class KelolaKhodamTest extends TestCase
     use RefreshDatabase;
 
     private User $admin;
+
     private User $pengamal;
+
     private Kategori $kategori1;
+
     private Kategori $kategori2;
 
     protected function setUp(): void
@@ -91,6 +94,27 @@ class KelolaKhodamTest extends TestCase
             ])
             ->assertJsonPath('data.0.status', 'Menunggu Dipanggil')
             ->assertJsonPath('data.0.is_tersedia', true);
+    }
+
+    public function test_daftar_khodam_admin_mendukung_per_page(): void
+    {
+        foreach (['KHD-A-001', 'KHD-B-001', 'KHD-C-001'] as $i => $kode) {
+            Khodam::create([
+                'kode_khodam' => $kode,
+                'nama' => 'Khodam '.$i,
+                'asal' => 'Alas Purwo',
+                'level_kekuatan' => 3,
+                'deskripsi' => 'Khodam uji pagination.',
+            ]);
+        }
+
+        $this->actingAs($this->admin, 'sanctum')
+            ->getJson('/api/v1/admin/khodam?per_page=2&page=2')
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.nama', 'Khodam 2')
+            ->assertJsonPath('meta.current_page', 2)
+            ->assertJsonPath('meta.total', 3);
     }
 
     /** 2. Filter pencarian dan status ketersediaan berfungsi */
