@@ -22,8 +22,6 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status') || 'semua';
     const pengamal = searchParams.get('pengamal');
-    const dariTanggal = searchParams.get('dari_tanggal');
-    const sampaiTanggal = searchParams.get('sampai_tanggal');
 
     // 1. Fetch real ledger directly from Laravel backend
     let backendData: any[] = [];
@@ -33,8 +31,6 @@ export async function GET(request: NextRequest) {
     try {
       const queryParams = new URLSearchParams();
       if (status && status !== 'semua') queryParams.set('status', status);
-      if (dariTanggal) queryParams.set('dari_tanggal', dariTanggal);
-      if (sampaiTanggal) queryParams.set('sampai_tanggal', sampaiTanggal);
 
       const res = await fetch(`${LARAVEL_API_URL}/admin/buku-catatan-gaib?${queryParams.toString()}`, {
         headers: {
@@ -63,17 +59,8 @@ export async function GET(request: NextRequest) {
 
     // If backend data succeeded:
     if (backendData.length > 0 || backendRingkasan) {
-      // Apply release overrides if any was released only locally
-      let list = backendData.map((item) => {
-        if (releasedIds.includes(item.id) && item.status !== 'Dilepas') {
-          return {
-            ...item,
-            status: 'Dilepas',
-            tgl_pelepasan_formatted: item.tgl_pelepasan_formatted !== '—' ? item.tgl_pelepasan_formatted : 'Hari ini',
-          };
-        }
-        return item;
-      });
+      // Status dari backend adalah sumber kebenaran, tidak ditimpa cookie
+      let list = [...backendData];
 
       // Append custom contracts
       const formattedCustom = customContracts.map((c) => {
@@ -107,12 +94,6 @@ export async function GET(request: NextRequest) {
       if (status !== 'semua') {
         list = list.filter((i) => i.status.toLowerCase() === status.toLowerCase());
       }
-      if (dariTanggal) {
-        list = list.filter((i) => (i.tgl_panggil || '') >= dariTanggal);
-      }
-      if (sampaiTanggal) {
-        list = list.filter((i) => (i.tgl_panggil || '') <= sampaiTanggal);
-      }
 
       const totalMahar = list.reduce((sum, item) => sum + (Number(item.mahar) || 0), 0);
 
@@ -137,12 +118,6 @@ export async function GET(request: NextRequest) {
     }
     if (status !== 'semua') {
       list = list.filter((i) => i.status.toLowerCase() === status.toLowerCase());
-    }
-    if (dariTanggal) {
-      list = list.filter((i) => i.tgl_panggil_raw >= dariTanggal);
-    }
-    if (sampaiTanggal) {
-      list = list.filter((i) => i.tgl_panggil_raw <= sampaiTanggal);
     }
 
     const totalMahar = list.reduce((sum, item) => sum + (Number(item.mahar) || 0), 0);

@@ -42,10 +42,7 @@ export async function GET(request: NextRequest) {
         const data = json.data;
 
         if (data) {
-          // Exclude any released contract from jatuh_tempo_terdekat
-          let jatuhTempo = (data.jatuh_tempo_terdekat || []).filter(
-            (item: any) => !releasedIds.includes(item.id)
-          );
+          let jatuhTempo = data.jatuh_tempo_terdekat || [];
 
           // If there are custom summoned contracts, integrate them
           const activeCustom = customContracts
@@ -68,9 +65,9 @@ export async function GET(request: NextRequest) {
             jatuhTempo = [...jatuhTempo, ...customJatuhTempo].slice(0, 6);
           }
 
-          // Adjust stats if releasedIds or activeCustom exist
+          // Adjust stats if activeCustom exist
           const terlambatCount = jatuhTempo.filter((i: any) => i.is_terlambat).length;
-          const aktifCount = (data.statistik?.pemanggilan_aktif || 0) - releasedIds.length + activeCustom.length;
+          const aktifCount = (data.statistik?.pemanggilan_aktif || 0) + activeCustom.length;
 
           return NextResponse.json({
             message: 'Data dashboard berhasil dimuat dari backend',

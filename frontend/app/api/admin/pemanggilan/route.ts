@@ -53,8 +53,8 @@ export async function GET(request: NextRequest) {
 
     // If backend data succeeded:
     if (backendData.length > 0 || backendTabs) {
-      // Exclude contracts released via cookie
-      const filteredBackend = backendData.filter((item) => !releasedIds.includes(item.id));
+      // Data backend adalah sumber kebenaran, tidak disaring cookie
+      const filteredBackend = backendData;
       const activeCustom = customContracts
         .filter((c) => !releasedIds.includes(c.id))
         .filter((c) => c.status === 'Aktif' || c.status === 'Terlambat');
@@ -67,7 +67,7 @@ export async function GET(request: NextRequest) {
       }
 
       const allActiveUnfiltered = [
-        ...backendData.filter((item) => !releasedIds.includes(item.id)),
+        ...backendData,
         ...activeCustom,
       ];
 

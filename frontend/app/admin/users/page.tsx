@@ -369,21 +369,20 @@ export default function AdminKelolaUsersPage() {
                     <th className="py-3.5 px-6">Identitas Pengguna</th>
                     <th className="py-3.5 px-6 w-36">Peran</th>
                     <th className="py-3.5 px-6">Kontak & Alamat</th>
-                    <th className="py-3.5 px-6 w-32">Weton</th>
                     <th className="py-3.5 px-6 text-right w-28">Aksi</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-stone-800/60 text-xs">
                   {loading ? (
                     <tr>
-                      <td colSpan={6} className="py-12 text-center text-stone-500">
+                      <td colSpan={5} className="py-12 text-center text-stone-500">
                         <Loader2 className="h-6 w-6 animate-spin mx-auto mb-2 text-[#d8b168]" />
                         <span>Memuat data pengguna...</span>
                       </td>
                     </tr>
                   ) : filteredUsers.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="py-12 text-center text-stone-500">
+                      <td colSpan={5} className="py-12 text-center text-stone-500">
                         <Users className="h-8 w-8 mx-auto mb-2 text-stone-600" />
                         <p className="font-semibold text-stone-400">Tidak ada pengguna ditemukan</p>
                         <p className="mt-1 text-[11px]">
@@ -437,9 +436,6 @@ export default function AdminKelolaUsersPage() {
                                 <span>{item.profile?.alamat || '—'}</span>
                               </p>
                             </div>
-                          </td>
-                          <td className="py-4 px-6 font-mono text-stone-400">
-                            {item.profile?.weton || '—'}
                           </td>
                           <td className="py-4 px-6 text-right space-x-1.5">
                             <button

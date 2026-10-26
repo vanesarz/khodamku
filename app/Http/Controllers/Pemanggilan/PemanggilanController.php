@@ -11,6 +11,7 @@ use App\Support\StatusJatuhTempo;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Models\Pemanggilan;
 
 // Inheritance: semua controller mewarisi kelas dasar Controller milik aplikasi
 class PemanggilanController extends Controller
@@ -136,4 +137,41 @@ class PemanggilanController extends Controller
             'data' => $aktif,
         ]);
     }
+    
+public function ulasan(Request $request, $id): JsonResponse
+{
+    // 1. Validasi input dari frontend
+    $validated = $request->validate([
+        'rating' => ['required', 'integer', 'min:1', 'max:5'],
+        'ulasan' => ['nullable', 'string', 'max:500'],
+    ]);
+
+    // 2. Cari data transaksi milik user yang sedang login
+    $pemanggilan = Pemanggilan::where('user_id', $request->user()->id)->findOrFail($id);
+
+    // 3. FIX ERROR 422: Gunakan strtolower agar tidak sensitif huruf besar/kecil
+    if (strtolower($pemanggilan->status) !== 'dilepas') {
+        return response()->json([
+            'message' => 'Ulasan hanya bisa diberikan setelah khodam dilepas oleh admin.'
+        ], 422);
+    }
+
+    // 4. Cek apakah sudah pernah diberi rating sebelumnya
+    if ($pemanggilan->rating !== null) {
+        return response()->json([
+            'message' => 'Ulasan untuk pemanggilan ini sudah diberikan.'
+        ], 422);
+    }
+
+    // 5. Simpan rating dan ulasan ke database
+    $pemanggilan->update([
+        'rating' => $validated['rating'],
+        'ulasan' => $validated['ulasan'] ?? null,
+    ]);
+
+    return response()->json([
+        'message' => 'Ulasan berhasil disimpan.',
+        'data' => $pemanggilan
+    ]);
+}
 }

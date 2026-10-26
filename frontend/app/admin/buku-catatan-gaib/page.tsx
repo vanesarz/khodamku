@@ -21,6 +21,8 @@ export interface CatatanGaibRecord {
   mahar: number;
   mahar_formatted: string;
   status: 'Aktif' | 'Terlambat' | 'Dilepas';
+  rating?: number | null;
+  ulasan?: string | null;
 }
 
 const getInitialRecords = (): CatatanGaibRecord[] => {
@@ -46,8 +48,6 @@ export default function AdminBukuCatatanGaibPage() {
   const [records, setRecords] = useState<CatatanGaibRecord[]>([]);
   const [selectedPengamal, setSelectedPengamal] = useState<string>('all');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
-  const [dariTanggal, setDariTanggal] = useState<string>('');
-  const [sampaiTanggal, setSampaiTanggal] = useState<string>('');
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
 
   // Fetch live from proxy API
@@ -88,21 +88,9 @@ export default function AdminBukuCatatanGaibPage() {
         }
       }
 
-      // Date range filter
-      if (dariTanggal && item.raw_tgl_panggil) {
-        if (item.raw_tgl_panggil < dariTanggal) {
-          return false;
-        }
-      }
-      if (sampaiTanggal && item.raw_tgl_panggil) {
-        if (item.raw_tgl_panggil > sampaiTanggal) {
-          return false;
-        }
-      }
-
       return true;
     });
-  }, [records, selectedPengamal, selectedStatus, dariTanggal, sampaiTanggal]);
+  }, [records, selectedPengamal, selectedStatus]);
 
   // Total Mahar Calculation
   const totalMahar = useMemo(() => {
@@ -166,8 +154,8 @@ export default function AdminBukuCatatanGaibPage() {
             </button>
           </div>
 
-          {/* 4-Input Filter Bar */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 print:hidden">
+          {/* 2-Input Filter Bar */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 print:hidden">
             {/* Filter 1: Pengamal */}
             <div>
               <label
@@ -217,40 +205,6 @@ export default function AdminBukuCatatanGaibPage() {
                 <ChevronDown className="pointer-events-none absolute right-3 top-3 h-4 w-4 text-stone-500" />
               </div>
             </div>
-
-            {/* Filter 3: Dari Tanggal */}
-            <div>
-              <label
-                htmlFor="filter-dari-tanggal"
-                className="block text-xs text-stone-400 mb-1.5 font-medium"
-              >
-                Dari tanggal
-              </label>
-              <input
-                id="filter-dari-tanggal"
-                type="date"
-                value={dariTanggal}
-                onChange={(e) => setDariTanggal(e.target.value)}
-                className="w-full rounded-lg border border-stone-800 bg-[#12100e] px-3.5 py-2.5 text-xs text-stone-200 focus:border-amber-500/50 focus:outline-none transition-colors [color-scheme:dark]"
-              />
-            </div>
-
-            {/* Filter 4: Sampai Tanggal */}
-            <div>
-              <label
-                htmlFor="filter-sampai-tanggal"
-                className="block text-xs text-stone-400 mb-1.5 font-medium"
-              >
-                Sampai tanggal
-              </label>
-              <input
-                id="filter-sampai-tanggal"
-                type="date"
-                value={sampaiTanggal}
-                onChange={(e) => setSampaiTanggal(e.target.value)}
-                className="w-full rounded-lg border border-stone-800 bg-[#12100e] px-3.5 py-2.5 text-xs text-stone-200 focus:border-amber-500/50 focus:outline-none transition-colors [color-scheme:dark]"
-              />
-            </div>
           </div>
 
           {/* Ledger Table Container */}
@@ -281,8 +235,11 @@ export default function AdminBukuCatatanGaibPage() {
                     <th scope="col" className="py-4 px-4 font-medium">
                       Mahar
                     </th>
-                    <th scope="col" className="py-4 pl-4 pr-6 font-medium">
+                    <th scope="col" className="py-4 px-4 font-medium">
                       Status
+                    </th>
+                    <th scope="col" className="py-4 pl-4 pr-6 font-medium">
+                      Rating
                     </th>
                   </tr>
                 </thead>
@@ -291,7 +248,7 @@ export default function AdminBukuCatatanGaibPage() {
                 <tbody className="divide-y divide-stone-800/60 text-xs">
                   {filteredRecords.length === 0 ? (
                     <tr>
-                      <td colSpan={8} className="py-12 text-center text-sm text-stone-500">
+                      <td colSpan={9} className="py-12 text-center text-sm text-stone-500">
                         Tidak ada riwayat catatan gaib yang sesuai filter.
                       </td>
                     </tr>
@@ -352,7 +309,7 @@ export default function AdminBukuCatatanGaibPage() {
                         </td>
 
                         {/* Status Column */}
-                        <td className="py-4 pl-4 pr-6">
+                        <td className="py-4 px-4">
                           {item.status === 'Terlambat' ? (
                             <span className="inline-flex rounded-full border border-amber-900/60 bg-amber-950/40 px-2.5 py-0.5 text-[10px] font-medium text-amber-500">
                               Terlambat
@@ -367,6 +324,22 @@ export default function AdminBukuCatatanGaibPage() {
                             </span>
                           )}
                         </td>
+
+                        {/* Rating & Ulasan Column */}
+                        <td className="py-4 pl-4 pr-6">
+                          {item.rating != null ? (
+                            <div className="max-w-[180px]">
+                              <span className="font-semibold text-[#d8b168]">★ {item.rating}/5</span>
+                              {item.ulasan && (
+                                <p className="mt-0.5 text-[11px] text-stone-400 break-words">
+                                  {item.ulasan}
+                                </p>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-stone-600">—</span>
+                          )}
+                        </td>
                       </tr>
                     ))
                   )}
@@ -375,7 +348,7 @@ export default function AdminBukuCatatanGaibPage() {
                 {/* Table Footer / Summary Row */}
                 <tfoot>
                   <tr className="border-t border-stone-800/80 bg-[#100e0c]/60 text-xs">
-                    <td colSpan={6} className="py-4 pl-6 pr-4 text-stone-400 font-medium">
+                    <td colSpan={7} className="py-4 pl-6 pr-4 text-stone-400 font-medium">
                       {filteredRecords.length} transaksi
                     </td>
                     <td colSpan={2} className="py-4 pl-4 pr-6 text-right font-extrabold text-white text-sm">

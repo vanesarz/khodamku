@@ -24,6 +24,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/khodam', [PemanggilanController::class, 'index']);
     Route::post('/pemanggilan', [PemanggilanController::class, 'store']);
     Route::get('/pemanggilan/aktif', [PemanggilanController::class, 'myActive']);
+    Route::post('/pemanggilan/{id}/ulasan', [PemanggilanController::class, 'ulasan']);
     Route::get('/riwayat', [RiwayatController::class, 'index']);
 
     // Route khusus Admin

@@ -18,6 +18,8 @@ class Pemanggilan extends Model
         'tgl_pelepasan',
         'mahar',
         'status',
+        'rating',
+        'ulasan',
     ];
 
     public function user(): BelongsTo

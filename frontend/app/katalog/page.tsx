@@ -371,14 +371,16 @@ export default function KatalogPage() {
       />
 
       {/* Ritual Pemanggilan Modal */}
-      <RitualPemanggilanModal
-        khodam={ritualKhodam}
-        onClose={() => setRitualKhodam(null)}
-        currentActiveCount={activeCount}
-        onSuccess={() => {
-          loadData();
-        }}
-      />
+      {ritualKhodam && (
+        <RitualPemanggilanModal
+          khodam={ritualKhodam}
+          onClose={() => setRitualKhodam(null)}
+          currentActiveCount={activeCount}
+          onSuccess={() => {
+            loadData();
+          }}
+        />
+      )}
     </div>
   );
 }

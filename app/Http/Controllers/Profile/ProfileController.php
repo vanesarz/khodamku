@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Profile;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class ProfileController extends Controller
 {
@@ -28,7 +28,6 @@ class ProfileController extends Controller
             'alamat' => ['required', 'string'],
             'tanggal_lahir' => ['nullable', 'date'],
             'weton' => ['required', 'string', 'max:50'],
-            'foto' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
         ]);
 
         $user = $request->user();
@@ -39,12 +38,6 @@ class ProfileController extends Controller
         }
 
         $profileData = $request->only(['no_hp', 'alamat', 'tanggal_lahir', 'weton']);
-
-        // Upload foto jika disertakan
-        if ($request->hasFile('foto')) {
-            $path = $request->file('foto')->store('profiles', 'public');
-            $profileData['foto'] = $path;
-        }
 
         $user->profile()->update($profileData);
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Camera, ChevronDown, Check, Loader2 } from 'lucide-react';
+import { ChevronDown, Check, Loader2 } from 'lucide-react';
 import Sidebar from '@/components/layout/Sidebar';
 import HeaderDate from '@/components/layout/HeaderDate';
 import { useAuth } from '@/hooks/useAuth';
@@ -167,13 +167,6 @@ export default function ProfilPage() {
                     {initials}
                   </span>
                 </div>
-                <button
-                  type="button"
-                  title="Ganti foto profil"
-                  className="absolute bottom-1 right-1 flex h-8 w-8 items-center justify-center rounded-full border border-stone-700 bg-stone-800 text-stone-300 hover:bg-stone-700 hover:text-white transition-colors shadow-md"
-                >
-                  <Camera className="h-4 w-4" />
-                </button>
               </div>
 
               {/* Identity */}
@@ -188,11 +181,6 @@ export default function ProfilPage() {
               <div className="mt-3 inline-flex items-center rounded-full border border-stone-800 bg-stone-900/60 px-3 py-1 text-xs font-medium text-stone-300">
                 {roleLabel}
               </div>
-
-              {/* Photo Upload Note */}
-              <p className="mt-8 text-[11px] text-stone-500">
-                JPG, PNG, atau WEBP &middot; maks. 2 MB
-              </p>
             </div>
 
             {/* Right Column: Profile Form */}

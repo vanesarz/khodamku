@@ -57,7 +57,7 @@ export default function Sidebar() {
   const adminKelolaData = [
     { name: 'Khodam', href: '/admin/kelola/khodam', icon: Sparkles },
     { name: 'Kategori', href: '/admin/kelola/kategori', icon: Tag },
-    { name: 'Pengamal', href: '/admin/users', icon: Users },
+    { name: 'Kelola Pengguna', href: '/admin/users', icon: Users },
   ];
 
   return (

@@ -82,6 +82,8 @@ class AdminBukuCatatanGaibController extends Controller
                 'mahar' => $mahar,
                 'mahar_formatted' => $maharFormatted,
                 'status' => $statusLabel,
+                'rating' => $item->rating,
+                'ulasan' => $item->ulasan,
             ];
         });
 

@@ -6,6 +6,7 @@ import { Phone, ArrowRight, Plus } from 'lucide-react';
 import Sidebar from '@/components/layout/Sidebar';
 import HeaderDate from '@/components/layout/HeaderDate';
 import KhodamDetailModal from '@/components/landing/KhodamDetailModal';
+import RitualPemanggilanModal from '@/components/features/RitualPemanggilanModal';
 import { useAuth } from '@/hooks/useAuth';
 import { Khodam } from '@/types';
 import { getAnchoredTransactions, calculateDueDateStatus, formatDateFull } from '@/lib/dateUtils';
@@ -16,24 +17,47 @@ export default function PemanggilanPage() {
   const [invocations, setInvocations] = useState<any[]>([]);
   const [anchoredList, setAnchoredList] = useState<any[]>([]);
   const [hasLoaded, setHasLoaded] = useState(false);
+  const [isPickerOpen, setIsPickerOpen] = useState(false);
+  const [khodamTersedia, setKhodamTersedia] = useState<Khodam[]>([]);
+  const [isLoadingKhodam, setIsLoadingKhodam] = useState(false);
+  const [ritualKhodam, setRitualKhodam] = useState<Khodam | null>(null);
+
+  const loadData = async () => {
+    try {
+      const res = await fetch('/api/pemanggilan');
+      if (res.ok) {
+        const json = await res.json();
+        if (json.data && Array.isArray(json.data)) {
+          setInvocations(json.data);
+        }
+      }
+    } catch (err) {
+      console.warn('Could not load pemanggilan:', err);
+    } finally {
+      setHasLoaded(true);
+    }
+  };
+
+  const bukaPilihKhodam = async () => {
+    setIsPickerOpen(true);
+    setIsLoadingKhodam(true);
+    try {
+      const res = await fetch('/api/khodams');
+      if (res.ok) {
+        const json = await res.json();
+        if (json.data && Array.isArray(json.data)) {
+          setKhodamTersedia(json.data.filter((k: Khodam) => k.is_tersedia));
+        }
+      }
+    } catch (err) {
+      console.warn('Could not load khodam list:', err);
+    } finally {
+      setIsLoadingKhodam(false);
+    }
+  };
 
   useEffect(() => {
     setAnchoredList(getAnchoredTransactions());
-    const loadData = async () => {
-      try {
-        const res = await fetch('/api/pemanggilan');
-        if (res.ok) {
-          const json = await res.json();
-          if (json.data && Array.isArray(json.data)) {
-            setInvocations(json.data);
-          }
-        }
-      } catch (err) {
-        console.warn('Could not load pemanggilan:', err);
-      } finally {
-        setHasLoaded(true);
-      }
-    };
     loadData();
   }, [user]);
 
@@ -234,8 +258,9 @@ export default function PemanggilanPage() {
 
               {/* Empty Slot Card for Pengamal */}
               {activeContracts.length < maxSlots && (
-                <Link
-                  href="/katalog"
+                <button
+                  type="button"
+                  onClick={bukaPilihKhodam}
                   className="group rounded-xl border-2 border-dashed border-stone-800 bg-[#12100e]/40 p-6 flex flex-col items-center justify-center text-center hover:border-[#d8b168]/70 hover:bg-[#12100e] transition-all min-h-[260px]"
                 >
                   <div className="flex h-12 w-12 items-center justify-center rounded-full border border-stone-800 bg-stone-900 text-stone-400 group-hover:border-[#d8b168]/60 group-hover:text-[#d8b168] transition-colors mb-3">
@@ -245,13 +270,13 @@ export default function PemanggilanPage() {
                     Slot Raga Kosong ({activeContracts.length}/{maxSlots})
                   </p>
                   <p className="text-xs text-stone-400 mt-1 max-w-[210px] leading-relaxed">
-                    Kapasitas raga masih tersedia. Klik untuk memanggil khodam baru dari katalog gaib.
+                    Kapasitas raga masih tersedia. Klik untuk memilih dan memanggil khodam baru.
                   </p>
                   <span className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-[#d8b168] px-3.5 py-1.5 text-xs font-bold text-stone-950 group-hover:bg-[#c99f52] transition-colors">
                     <span>Panggil Khodam</span>
                     <ArrowRight className="h-3 w-3" />
                   </span>
-                </Link>
+                </button>
               )}
             </div>
           )}
@@ -278,6 +303,79 @@ export default function PemanggilanPage() {
         khodam={selectedKhodam}
         onClose={() => setSelectedKhodam(null)}
       />
+
+      {/* Pilih Khodam untuk Dipanggil */}
+      {isPickerOpen && (
+        <div
+          className="fixed inset-0 z-40 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md"
+          onClick={() => setIsPickerOpen(false)}
+        >
+          <div
+            className="w-full max-w-lg max-h-[80vh] overflow-y-auto rounded-2xl border border-stone-800 bg-[#141210] p-6 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-extrabold text-white">Pilih Khodam</h2>
+              <button
+                type="button"
+                onClick={() => setIsPickerOpen(false)}
+                className="text-xs text-stone-400 hover:text-white transition-colors"
+              >
+                Tutup
+              </button>
+            </div>
+
+            {isLoadingKhodam ? (
+              <p className="py-8 text-center text-xs text-stone-500">Memuat khodam...</p>
+            ) : khodamTersedia.length === 0 ? (
+              <p className="py-8 text-center text-xs text-stone-500">
+                Tidak ada khodam yang sedang menunggu dipanggil.
+              </p>
+            ) : (
+              <ul className="space-y-2">
+                {khodamTersedia.map((k) => (
+                  <li
+                    key={k.id}
+                    className="flex items-center justify-between gap-3 rounded-lg border border-stone-800 bg-stone-950/60 px-4 py-3"
+                  >
+                    <div>
+                      <p className="text-sm font-bold text-white">{k.nama}</p>
+                      <p className="font-mono text-[10px] text-stone-500">
+                        {k.kode_khodam} &middot; {k.asal}
+                      </p>
+                      {k.kategoris?.length > 0 && (
+                        <p className="mt-1 text-[11px] text-[#d8b168]">
+                          Hajat: {k.kategoris.map((kat) => kat.nama).join(' · ')}
+                        </p>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsPickerOpen(false);
+                        setRitualKhodam(k);
+                      }}
+                      className="rounded-lg bg-[#d8b168] px-3.5 py-1.5 text-xs font-bold text-stone-950 hover:bg-[#c99f52] transition-colors"
+                    >
+                      Panggil
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Ritual Pemanggilan Modal */}
+      {ritualKhodam && (
+        <RitualPemanggilanModal
+          khodam={ritualKhodam}
+          onClose={() => setRitualKhodam(null)}
+          currentActiveCount={activeCount}
+          onSuccess={loadData}
+        />
+      )}
     </div>
   );
 }

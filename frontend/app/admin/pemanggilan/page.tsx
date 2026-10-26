@@ -52,6 +52,7 @@ export default function AdminPemanggilanAktifPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Fetch from backend API
@@ -101,27 +102,26 @@ export default function AdminPemanggilanAktifPage() {
         method: 'POST',
       });
 
+      const result = await res.json().catch(() => null);
+
       if (res.ok) {
-        const result = await res.json();
+        setErrorMessage(null);
         setSuccessMessage(
-          result.message ||
+          result?.message ||
             `Khodam ${selectedItem?.khodam.nama} berhasil dilepaskan dari ${selectedItem?.pengamal}. Kontrak telah selesai.`
         );
+        setRecords((prev) => prev.filter((r) => r.id !== id));
       } else {
-        setSuccessMessage(
-          `Khodam ${selectedItem?.khodam.nama} berhasil dilepaskan dari ${selectedItem?.pengamal}. Kontrak telah selesai.`
-        );
+        setSuccessMessage(null);
+        setErrorMessage(result?.error || 'Gagal melepaskan khodam. Coba lagi.');
       }
 
-      setRecords((prev) => prev.filter((r) => r.id !== id));
       setIsModalOpen(false);
       setSelectedItem(null);
     } catch (err) {
       console.error('Error releasing khodam:', err);
-      setRecords((prev) => prev.filter((r) => r.id !== id));
-      setSuccessMessage(
-        `Khodam ${selectedItem?.khodam.nama} berhasil dilepaskan. Kontrak telah selesai.`
-      );
+      setSuccessMessage(null);
+      setErrorMessage('Terjadi gangguan jaringan saat melepaskan khodam.');
       setIsModalOpen(false);
       setSelectedItem(null);
     } finally {
@@ -172,6 +172,21 @@ export default function AdminPemanggilanAktifPage() {
               <button
                 type="button"
                 onClick={() => setSuccessMessage(null)}
+                className="text-stone-400 hover:text-white transition-colors"
+                aria-label="Tutup notifikasi"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          )}
+
+          {/* Error Banner */}
+          {errorMessage && (
+            <div className="mb-6 flex items-center justify-between rounded-xl border border-red-500/30 bg-red-950/30 px-5 py-3.5 text-xs text-red-300">
+              <span>{errorMessage}</span>
+              <button
+                type="button"
+                onClick={() => setErrorMessage(null)}
                 className="text-stone-400 hover:text-white transition-colors"
                 aria-label="Tutup notifikasi"
               >

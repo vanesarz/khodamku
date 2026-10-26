@@ -8,6 +8,49 @@ import { useAuth } from '@/hooks/useAuth';
 import { formatRupiah } from '@/lib/utils';
 import { getAnchoredTransactions, formatDateFull } from '@/lib/dateUtils';
 
+function FormUlasan({ idPemanggilan, onBerhasil }: { idPemanggilan: number; onBerhasil: () => void }) {
+  const [rating, setRating] = useState(5);
+  const [ulasan, setUlasan] = useState('');
+  const [loading, setLoading] = useState(false);
+  const kirimUlasan = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/pemanggilan/${idPemanggilan}/ulasan`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rating, ulasan }),
+      });
+      if (res.ok) {
+        alert('ulasan berhasil dikirim!');
+        onBerhasil();
+      } else {
+        const body = await res.json().catch(() => null);
+        alert(body?.message || 'gagal mengirim ulasan');
+      }
+    } catch (error) {
+      alert('terjadi kesalahan jaringan');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="flex items-center justify-center gap-2">
+      <select value={rating} onChange={(e) => setRating(Number(e.target.value))} className="bg-stone-900 border border-stone-700 rounded p-1.5 text-xs text-white focus:outline-none focus:border-[#d8b168]">
+        <option value={5}>⭐ 5</option>
+        <option value={4}>⭐ 4</option>
+        <option value={3}>⭐ 3</option>
+        <option value={2}>⭐ 2</option>
+        <option value={1}>⭐ 1</option>
+      </select>
+      <input type="text" placeholder="tulis ulasan..." value={ulasan} onChange={(e) => setUlasan(e.target.value)} className="bg-stone-900 border border-stone-700 rounded p-1.5 text-xs w-28 text-white focus:outline-none focus:border-[#d8b168]" />
+      <button onClick={kirimUlasan} disabled={loading} className="bg-[#d8b168] hover:bg-[#c49f5a] text-[#12100e] font-semibold px-3 py-1.5 rounded text-xs disabled:opacity-50 transition-colors">
+        {loading ? '...' : 'kirim'}
+      </button>
+    </div>
+  );
+}
+
 interface TransaksiRecord {
   id: number;
   kode_transaksi: string;
@@ -24,6 +67,7 @@ interface TransaksiRecord {
   mahar: number;
   mahar_formatted: string;
   status: 'Aktif' | 'Terlambat' | 'Dilepas';
+  rating?: number | null;
 }
 
 export default function RiwayatPage() {
@@ -34,6 +78,7 @@ export default function RiwayatPage() {
   const [invocations, setInvocations] = useState<any[]>([]);
   const [allAnchored, setAllAnchored] = useState<any[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [idSudahDiulas, setIdSudahDiulas] = useState<number[]>([]);
 
   useEffect(() => {
     setAllAnchored(getAnchoredTransactions());
@@ -74,7 +119,7 @@ export default function RiwayatPage() {
     if (invocations.length > 0) {
       return invocations.map((item) => {
         const itemStatus: 'Aktif' | 'Terlambat' | 'Dilepas' = 
-          (item.status === 'dilepas' || item.tgl_pelepasan)
+          String(item.status).toLowerCase() === 'dilepas'
             ? 'Dilepas'
             : item.is_terlambat
             ? 'Terlambat'
@@ -101,6 +146,7 @@ export default function RiwayatPage() {
                 : `~${formatRupiah(item.mahar)}`
               : '~Rp0',
           status: itemStatus,
+          rating: item.rating,
         };
       });
     }
@@ -127,21 +173,15 @@ export default function RiwayatPage() {
   // Filtering Logic
   const filteredData = useMemo(() => {
     return transactions.filter((item) => {
+      if (item.rating != null || idSudahDiulas.includes(item.id)) return false;
+
       if (statusFilter !== 'semua') {
         if (statusFilter.toLowerCase() !== item.status.toLowerCase()) return false;
       }
 
-      if (dariTanggal && item.tgl_panggil < dariTanggal) {
-        return false;
-      }
-
-      if (sampaiTanggal && item.tgl_panggil > sampaiTanggal) {
-        return false;
-      }
-
       return true;
     });
-  }, [transactions, statusFilter, dariTanggal, sampaiTanggal]);
+  }, [transactions, statusFilter, idSudahDiulas]);
 
   const totalMahar = filteredData.reduce((acc, curr) => acc + curr.mahar, 0);
 
@@ -203,40 +243,6 @@ export default function RiwayatPage() {
                 <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" />
               </div>
             </div>
-
-            {/* Dari Tanggal */}
-            <div>
-              <label
-                htmlFor="dari-tanggal"
-                className="block text-xs text-stone-400 mb-1.5 font-medium"
-              >
-                Dari tanggal
-              </label>
-              <input
-                id="dari-tanggal"
-                type="date"
-                value={dariTanggal}
-                onChange={(e) => setDariTanggal(e.target.value)}
-                className="w-full rounded-lg border border-stone-800 bg-[#12100e] px-3.5 py-2.5 text-xs sm:text-sm text-white focus:border-[#d8b168] focus:outline-none focus:ring-1 focus:ring-[#d8b168] transition-colors [color-scheme:dark]"
-              />
-            </div>
-
-            {/* Sampai Tanggal */}
-            <div>
-              <label
-                htmlFor="sampai-tanggal"
-                className="block text-xs text-stone-400 mb-1.5 font-medium"
-              >
-                Sampai tanggal
-              </label>
-              <input
-                id="sampai-tanggal"
-                type="date"
-                value={sampaiTanggal}
-                onChange={(e) => setSampaiTanggal(e.target.value)}
-                className="w-full rounded-lg border border-stone-800 bg-[#12100e] px-3.5 py-2.5 text-xs sm:text-sm text-white focus:border-[#d8b168] focus:outline-none focus:ring-1 focus:ring-[#d8b168] transition-colors [color-scheme:dark]"
-              />
-            </div>
           </div>
 
           {/* Data Table Panel */}
@@ -266,12 +272,15 @@ export default function RiwayatPage() {
                     <th scope="col" className="py-4 px-6 font-semibold text-center">
                       Status
                     </th>
+                    <th scope="col" className="py-4 px-6 font-semibold text-center">
+                      Aksi
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-stone-800/60 text-xs">
                   {filteredData.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="py-12 text-center text-stone-500">
+                      <td colSpan={8} className="py-12 text-center text-stone-500">
                         Tidak ada riwayat transaksi yang cocok dengan filter.
                       </td>
                     </tr>
@@ -332,6 +341,19 @@ export default function RiwayatPage() {
                             <span className="inline-flex items-center rounded-full border border-amber-900/50 bg-amber-950/30 px-2.5 py-0.5 text-[11px] font-medium text-amber-500">
                               Terlambat
                             </span>
+                          )}
+                        </td>
+
+                        {/* Aksi Kolom (Ulasan) */}
+                        <td className="py-4 px-6 text-center">
+                          {item.status === 'Dilepas' ? (
+                            <FormUlasan
+                              idPemanggilan={item.id}
+                              onBerhasil={() => setIdSudahDiulas((prev) => [...prev, item.id])}
+                            />
+                          ) : (
+                            <span className="text-stone-600 font-medium">-</span>
+                            
                           )}
                         </td>
                       </tr>
