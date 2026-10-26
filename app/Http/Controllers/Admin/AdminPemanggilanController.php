@@ -2,15 +2,18 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Contracts\KebijakanDenda;
 use App\Http\Controllers\Controller;
 use App\Models\Pemanggilan;
+use App\Services\PemanggilanService;
+use App\Support\StatusJatuhTempo;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class AdminPemanggilanController extends Controller
 {
-    public function index(Request $request): JsonResponse
+    public function index(Request $request, KebijakanDenda $kebijakanDenda): JsonResponse
     {
         $today = Carbon::today();
         $tab = $request->query('tab', 'semua');
@@ -36,25 +39,12 @@ class AdminPemanggilanController extends Controller
             $query->whereDate('tgl_jatuh_tempo', '>=', $today);
         }
 
-        $list = $query->orderBy('tgl_jatuh_tempo', 'asc')->get()->map(function ($item) use ($today) {
-            $jatuhTempo = Carbon::parse($item->tgl_jatuh_tempo)->startOfDay();
-            
-            $hariTerlambat = 0;
-            if ($today->gt($jatuhTempo)) {
-                $hariTerlambat = $jatuhTempo->diffInDays($today);
-                $statusBadge = 'Telat ' . $hariTerlambat . ' hari';
-            } elseif ($today->equalTo($jatuhTempo)) {
-                $statusBadge = 'Hari ini';
-            } else {
-                $sisaHari = $today->diffInDays($jatuhTempo);
-                $statusBadge = $sisaHari . ' hari lagi';
-            }
-
-            $estimasiMahar = $hariTerlambat * 5000;
+        $list = $query->orderBy('tgl_jatuh_tempo', 'asc')->get()->map(function ($item) use ($today, $kebijakanDenda) {
+            $jatuhTempo = Carbon::parse($item->tgl_jatuh_tempo);
 
             return [
                 'id' => $item->id,
-                'kode_transaksi' => 'PMG-' . str_pad($item->id, 4, '0', STR_PAD_LEFT),
+                'kode_transaksi' => 'PMG-'.str_pad($item->id, 4, '0', STR_PAD_LEFT),
                 'pengamal' => $item->user?->name,
                 'khodam' => [
                     'nama' => $item->khodam?->nama,
@@ -62,9 +52,9 @@ class AdminPemanggilanController extends Controller
                 ],
                 'tgl_panggil' => $item->tgl_panggil,
                 'tgl_jatuh_tempo' => $item->tgl_jatuh_tempo,
-                'status_badge' => $statusBadge,
-                'estimasi_mahar' => $estimasiMahar,
-                'is_terlambat' => $hariTerlambat > 0,
+                'status_badge' => StatusJatuhTempo::badge($jatuhTempo, $today),
+                'estimasi_mahar' => $kebijakanDenda->hitung($jatuhTempo, $today),
+                'is_terlambat' => StatusJatuhTempo::hariTerlambat($jatuhTempo, $today) > 0,
             ];
         });
 
@@ -79,37 +69,20 @@ class AdminPemanggilanController extends Controller
         ]);
     }
 
-    public function lepas($id): JsonResponse
+    public function lepas(string $id, PemanggilanService $service): JsonResponse
     {
-        $pemanggilan = Pemanggilan::with(['user', 'khodam'])
-            ->where('status', 'aktif')
-            ->findOrFail($id);
-
-        $today = Carbon::today();
-        $jatuhTempo = Carbon::parse($pemanggilan->tgl_jatuh_tempo)->startOfDay();
-
-        // Hitung biaya keterlambatan jika tanggal pengembalian melewati jatuh tempo
-        $hariTerlambat = 0;
-        if ($today->gt($jatuhTempo)) {
-            $hariTerlambat = $jatuhTempo->diffInDays($today);
-        }
-        $maharAkhir = $hariTerlambat * 5000;
-
-        $pemanggilan->update([
-            'tgl_pelepasan' => $today->toDateString(),
-            'mahar' => $maharAkhir,
-            'status' => 'dilepas',
-        ]);
+        // Pemanggilan yang tidak ada / sudah dilepas tetap menghasilkan 404 seperti sebelumnya
+        ['pemanggilan' => $pemanggilan, 'hari_terlambat' => $hariTerlambat] = $service->lepas((int) $id);
 
         return response()->json([
-            'message' => 'Khodam ' . $pemanggilan->khodam?->nama . ' berhasil dilepaskan',
+            'message' => 'Khodam '.$pemanggilan->khodam?->nama.' berhasil dilepaskan',
             'data' => [
                 'id' => $pemanggilan->id,
                 'pengamal' => $pemanggilan->user?->name,
                 'khodam' => $pemanggilan->khodam?->nama,
                 'tgl_pelepasan' => $pemanggilan->tgl_pelepasan,
                 'hari_terlambat' => $hariTerlambat,
-                'mahar_akhir' => $maharAkhir,
+                'mahar_akhir' => $pemanggilan->mahar,
                 'status' => $pemanggilan->status,
             ],
         ]);

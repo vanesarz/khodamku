@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Contracts\KebijakanDenda;
 use App\Http\Controllers\Controller;
 use App\Models\Pemanggilan;
 use App\Models\User;
@@ -9,10 +10,9 @@ use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-
 class AdminBukuCatatanGaibController extends Controller
 {
-public function index(Request $request): JsonResponse
+    public function index(Request $request, KebijakanDenda $kebijakanDenda): JsonResponse
     {
         $today = Carbon::today();
 
@@ -50,17 +50,16 @@ public function index(Request $request): JsonResponse
 
         // 5. Transformasi Data & Hitung Kalkulasi Mahar
         $totalMahar = 0;
-        $listData = $transaksi->map(function ($item) use ($today, &$totalMahar) {
+        $listData = $transaksi->map(function ($item) use ($today, $kebijakanDenda, &$totalMahar) {
             $jatuhTempo = Carbon::parse($item->tgl_jatuh_tempo)->startOfDay();
             $isAktif = $item->status === 'aktif';
 
             // Tentukan status badge dan perhitungan mahar
             if ($isAktif) {
                 if ($today->gt($jatuhTempo)) {
-                    $hariTerlambat = $jatuhTempo->diffInDays($today);
-                    $mahar = $hariTerlambat * 5000;
+                    $mahar = $kebijakanDenda->hitung($jatuhTempo, $today);
                     $statusLabel = 'Terlambat';
-                    $maharFormatted = '~Rp' . number_format($mahar, 0, ',', '.');
+                    $maharFormatted = '~Rp'.number_format($mahar, 0, ',', '.');
                 } else {
                     $mahar = 0;
                     $statusLabel = 'Aktif';
@@ -69,14 +68,14 @@ public function index(Request $request): JsonResponse
             } else {
                 $mahar = (float) $item->mahar;
                 $statusLabel = 'Dilepas';
-                $maharFormatted = 'Rp' . number_format($mahar, 0, ',', '.');
+                $maharFormatted = 'Rp'.number_format($mahar, 0, ',', '.');
             }
 
             $totalMahar += $mahar;
 
             return [
                 'id' => $item->id,
-                'kode_transaksi' => 'PMG-' . str_pad($item->id, 4, '0', STR_PAD_LEFT),
+                'kode_transaksi' => 'PMG-'.str_pad($item->id, 4, '0', STR_PAD_LEFT),
                 'pengamal' => $item->user?->name,
                 'khodam' => [
                     'nama' => $item->khodam?->nama,
@@ -107,7 +106,7 @@ public function index(Request $request): JsonResponse
             'ringkasan' => [
                 'total_transaksi' => $listData->count(),
                 'total_mahar' => $totalMahar,
-                'total_mahar_formatted' => 'Rp' . number_format($totalMahar, 0, ',', '.'),
+                'total_mahar_formatted' => 'Rp'.number_format($totalMahar, 0, ',', '.'),
             ],
             'filter_options' => [
                 'pengamals' => $daftarPengamal,

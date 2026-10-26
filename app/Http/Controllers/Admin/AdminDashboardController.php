@@ -2,18 +2,20 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Contracts\KebijakanDenda;
 use App\Http\Controllers\Controller;
 use App\Models\Kategori;
 use App\Models\Khodam;
 use App\Models\Pemanggilan;
 use App\Models\User;
+use App\Support\StatusJatuhTempo;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Collection;
 
 class AdminDashboardController extends Controller
 {
-    private const TARIF_DENDA_PER_HARI = 5000;
+    public function __construct(private KebijakanDenda $kebijakanDenda) {}
 
     public function index(): JsonResponse
     {
@@ -85,7 +87,7 @@ class AdminDashboardController extends Controller
     private function getRingkasan(Collection $terlambat, Carbon $today): array
     {
         $estimasiMahar = $terlambat->sum(
-            fn ($p) => Carbon::parse($p->tgl_jatuh_tempo)->startOfDay()->diffInDays($today) * self::TARIF_DENDA_PER_HARI
+            fn ($p) => $this->kebijakanDenda->hitung(Carbon::parse($p->tgl_jatuh_tempo), $today)
         );
 
         return [
@@ -118,7 +120,7 @@ class AdminDashboardController extends Controller
             ->limit($limit)
             ->get()
             ->map(function ($item) use ($today) {
-                $selisih = (int) $today->diffInDays(Carbon::parse($item->tgl_jatuh_tempo)->startOfDay(), false);
+                $jatuhTempo = Carbon::parse($item->tgl_jatuh_tempo);
 
                 return [
                     'id' => $item->id,
@@ -128,19 +130,10 @@ class AdminDashboardController extends Controller
                     ],
                     'pengamal' => $item->user?->name,
                     'tgl_jatuh_tempo' => $item->tgl_jatuh_tempo,
-                    'status_badge' => $this->buatBadge($selisih),
-                    'is_terlambat' => $selisih < 0,
+                    'status_badge' => StatusJatuhTempo::badge($jatuhTempo, $today),
+                    'is_terlambat' => StatusJatuhTempo::hariTerlambat($jatuhTempo, $today) > 0,
                 ];
             });
-    }
-
-    private function buatBadge(int $selisihHari): string
-    {
-        return match (true) {
-            $selisihHari < 0 => 'Telat ' . abs($selisihHari) . ' hari',
-            $selisihHari === 0 => 'Hari ini',
-            default => $selisihHari . ' hari lagi',
-        };
     }
 
     private function getKategori(): Collection
