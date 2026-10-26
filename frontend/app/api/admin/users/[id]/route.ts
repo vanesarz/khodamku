@@ -36,6 +36,59 @@ export async function GET(
   }
 }
 
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const token = request.cookies.get(AUTH_COOKIE_NAME)?.value;
+    const { id } = await params;
+
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 });
+    }
+
+    const body = await request.json();
+
+    const payload: Record<string, unknown> = {
+      name: body.name,
+      email: body.email,
+      no_hp: body.no_hp,
+      alamat: body.alamat,
+    };
+    if (body.password) payload.password = body.password;
+
+    // Laravel memakai POST untuk update (pola yang sama dengan khodam dan kategori)
+    const res = await fetch(`${LARAVEL_API_URL}/admin/users/${id}`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const json = await res.json();
+    if (!res.ok) {
+      return NextResponse.json(
+        { error: json.message || 'Gagal memperbarui user', errors: json.errors },
+        { status: res.status }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: json.message || 'Data user berhasil diperbarui',
+      data: json.data,
+    });
+  } catch (error: any) {
+    if (error && typeof error === 'object' && 'digest' in error) throw error;
+    console.error('User update error:', error);
+    return NextResponse.json({ error: 'Terjadi kesalahan saat memperbarui user' }, { status: 500 });
+  }
+}
+
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }

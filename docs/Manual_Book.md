@@ -42,7 +42,7 @@
 **KhodamKu** (*Sewa Khodam, Hidup Lebih Tenang*) adalah sistem informasi peminjaman dan inventaris unit berbasis web modern yang dikemas dengan nuansa mistis-komedi Indonesia. Sistem ini mengadopsi mekanisme operasional peminjaman unit standar—seperti registrasi anggota, katalogisasi barang, batas pinjam, durasi peminjaman, denda keterlambatan, dan pencetakan riwayat transaksi—namun dibalut dengan terminologi unik seperti "khodam", "ritual pemanggilan", "pelepasan", dan "mahar keterlambatan".
 
 Aplikasi dibangun menggunakan arsitektur *decoupled full-stack*:
-- **Backend API:** Framework Laravel 11 dengan PHP 8.2+ dan basis data MySQL.
+- **Backend API:** Framework Laravel 13.x dengan PHP ^8.3 dan basis data MySQL.
 - **Frontend SPA:** Framework Next.js 16 (App Router), React 19, TypeScript, dan Tailwind CSS.
 
 > ⚠️ **Catatan Penting:** Seluruh nama entitas khodam, kategori tuah, dan visualisasi bersifat **FIKTIF** semata dan ditujukan untuk sarana pembelajaran rekayasa perangkat lunak serta hiburan.

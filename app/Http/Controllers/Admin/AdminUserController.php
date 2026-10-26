@@ -3,12 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\StoreUserRequest;
+use App\Http\Requests\Admin\UpdateUserRequest;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules;
 
 class AdminUserController extends Controller
 {
@@ -38,21 +39,15 @@ class AdminUserController extends Controller
     }
 
     // 2. Tambah user baru (bisa admin atau pengamal)
-    public function store(Request $request): JsonResponse
+    public function store(StoreUserRequest $request): JsonResponse
     {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
-
         $newAdmin = DB::transaction(function () use ($request) {
-            // 1. Buat user 
+            // 1. Buat user
             $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => Hash::make($request->string('password')),
-                'role' => $request->role,
+                'name' => $request->validated('name'),
+                'email' => $request->validated('email'),
+                'password' => Hash::make($request->validated('password')),
+                'role' => $request->validated('role'),
             ]);
 
             // 2. Record profil default
@@ -68,9 +63,44 @@ class AdminUserController extends Controller
         });
 
         return response()->json([
-            'message' => 'Akun ' . $request->role . ' baru berhasil dibuat',
+            'message' => 'Akun '.$newAdmin->role.' baru berhasil dibuat',
             'data' => $newAdmin->load('profile'),
         ], 201);
+    }
+
+    // 2b. Ubah data user (nama, email, password opsional, no_hp, alamat)
+    public function update(UpdateUserRequest $request, int $id): JsonResponse
+    {
+        $user = User::findOrFail($id);
+        $data = $request->validated();
+
+        DB::transaction(function () use ($user, $data) {
+            $akun = ['name' => $data['name'], 'email' => $data['email']];
+
+            if (! empty($data['password'])) {
+                $akun['password'] = $data['password'];
+            }
+
+            $user->update($akun);
+
+            // Kolom profil bersifat wajib di DB, jadi nilai kosong disimpan sebagai '-'
+            $profil = [];
+            foreach (['no_hp', 'alamat'] as $kolom) {
+                if (array_key_exists($kolom, $data)) {
+                    $profil[$kolom] = $data[$kolom] ?? '-';
+                }
+            }
+
+            $user->profile()
+                ->firstOrNew([], ['no_hp' => '-', 'alamat' => '-', 'weton' => '-'])
+                ->fill($profil)
+                ->save();
+        });
+
+        return response()->json([
+            'message' => 'Data user berhasil diperbarui',
+            'data' => $user->load('profile'),
+        ]);
     }
 
     // 3. Detail user

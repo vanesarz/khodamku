@@ -65,7 +65,7 @@
 - Penghitungan otomatis mahar denda keterlambatan (flat Rp5.000 per hari).
 - Rekapitulasi transaksi (*Buku Catatan Gaib*) dan pencetakan dokumen laporan siap cetak.
 
-Sistem dibangun dengan memisahkan sisi **Backend RESTful API (Laravel 11)** dan **Frontend SPA (Next.js 16)**, memberikan fleksibilitas tinggi, keamanan data berlapis, dan performa pengguna yang responsif.
+Sistem dibangun dengan memisahkan sisi **Backend RESTful API (Laravel 13.x)** dan **Frontend SPA (Next.js 16)**, memberikan fleksibilitas tinggi, keamanan data berlapis, dan performa pengguna yang responsif.
 
 ---
 
@@ -113,7 +113,7 @@ graph TD
         SessionCookie["Secure Session & JWT Storage"]
     end
     
-    subgraph Backend["Backend Tier (Laravel 11 RESTful API)"]
+    subgraph Backend["Backend Tier (Laravel 13.x RESTful API)"]
         AuthMiddleware["Sanctum & CheckRole Middleware"]
         Controllers["Controllers\n(Khodam, Pemanggilan, Admin, Profile)"]
         EloquentORM["Eloquent ORM Models\n(User, Profile, Khodam, Kategori, Pemanggilan)"]
@@ -136,8 +136,8 @@ graph TD
 ## 4.2 Daftar Teknologi & Dependensi
 
 ### A. Backend:
-- **Framework:** Laravel 11.x
-- **Bahasa Pemrograman:** PHP 8.2+
+- **Framework:** Laravel 13.x
+- **Bahasa Pemrograman:** PHP ^8.3
 - **Autentikasi:** Laravel Sanctum & Laravel Breeze API
 - **ORM:** Eloquent ORM
 - **Database Engine:** MySQL 8.0 (kompatibel MariaDB & SQLite untuk unit testing)
@@ -571,7 +571,7 @@ Hasil akhir:
 ## 7.3 Continuous Integration (CI/CD Pipeline)
 
 Repositori dikonfigurasi dengan **GitHub Actions** (`.github/workflows/laravel.yml`) yang secara otomatis menjalankan:
-1. Setup PHP 8.2 & Composer dependencies.
+1. Setup PHP 8.3 & Composer dependencies.
 2. Inisialisasi konfigurasi environment & application key.
 3. Eksekusi database migration pada SQLite in-memory database.
 4. Menjalankan test suite PHPUnit untuk memastikan setiap pull request bebas regresi.
@@ -583,7 +583,7 @@ Repositori dikonfigurasi dengan **GitHub Actions** (`.github/workflows/laravel.y
 ## 8.1 Prasyarat Lingkungan
 
 Pastikan perangkat telah terpasang:
-- **PHP** versi 8.2 atau lebih baru (dengan ekstensi `pdo_mysql`, `mbstring`, `openssl`, `tokenizer`, `xml`, `ctype`, `json`, `bcmath`).
+- **PHP** versi 8.3 atau lebih baru (dengan ekstensi `pdo_mysql`, `mbstring`, `openssl`, `tokenizer`, `xml`, `ctype`, `json`, `bcmath`).
 - **Composer** versi 2.x.
 - **Node.js** versi 18.x atau 20.x dan **npm**.
 - **MySQL Database Server** (port standar 3306).

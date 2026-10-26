@@ -14,7 +14,7 @@
 | **Nama Kelompok** | **Kelompok 11** |
 | **Anggota Tim Pengembang** | 1. **Vanesa Rizka Alfatihah** (`102022300121`) - Frontend & UI/UX<br>2. **Taufik Qurohman** (`102022300211`) - Backend & Database<br>3. **Ahmad Akmal Amran** (`102022300010`) - Fullstack & System Analyst |
 | **Lingkungan Uji (Environment)** | Staging / Localhost (`http://localhost:3000` & `http://localhost:8000`) |
-| **Platform / Stack** | Laravel 11 (PHP 8.2+), Next.js 16 (React 19, TypeScript), MySQL 8.0, Tailwind CSS |
+| **Platform / Stack** | Laravel 13.x (PHP ^8.3), Next.js 16 (React 19, TypeScript), MySQL 8.0, Tailwind CSS |
 | **Peramban Uji (Browser)** | Google Chrome v130+, Mozilla Firefox v131+, Safari 18+ (Desktop & Mobile Viewport) |
 | **Aktor Penguji (Testers)** | 1. **Juru Kunci (Admin):** Mbah Darmo (`admin@example.com`)<br>2. **Pengamal (User):** Sekar Ayu Lestari (`sekar@khodamku.test`), Bima Saputra (`bima@khodamku.test`) |
 
