@@ -7,7 +7,7 @@ const DEFAULT_USERS = [
   {
     id: 1,
     name: 'Mbah Darmo',
-    email: 'admin@example.com',
+    email: 'admin@khodamku.test',
     role: 'admin',
     profile: { no_hp: '08123456789', alamat: 'Kantor Pusat KhodamKu', weton: 'Wage', tanggal_lahir: '1945-01-01' },
   },

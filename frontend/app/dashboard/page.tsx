@@ -98,7 +98,7 @@ export default function DashboardPage() {
         userTransactions = anchoredList.filter((t) => t.pengamal_email.toLowerCase().includes('sekar'));
       } else if (emailLower.includes('bima')) {
         userTransactions = anchoredList.filter((t) => t.pengamal_email.toLowerCase().includes('bima'));
-      } else if (emailLower.includes('raka') || emailLower.includes('pengamal@demo.test')) {
+      } else if (emailLower.includes('raka') || emailLower.includes('pengamal@khodamku.test')) {
         userTransactions = anchoredList.filter((t) => t.pengamal_email.toLowerCase().includes('raka'));
       } else {
         userTransactions = [];
@@ -137,7 +137,7 @@ export default function DashboardPage() {
     const emailLower = user?.email?.toLowerCase() || '';
     if (emailLower.includes('sekar')) return 2;
     if (emailLower.includes('bima')) return 3;
-    if (emailLower.includes('raka') || emailLower.includes('pengamal@demo.test')) return 3;
+    if (emailLower.includes('raka') || emailLower.includes('pengamal@khodamku.test')) return 3;
     return 0;
   }, [invocations, user]);
 
@@ -150,7 +150,7 @@ export default function DashboardPage() {
     const emailLower = user?.email?.toLowerCase() || '';
     if (emailLower.includes('sekar')) return 10000;
     if (emailLower.includes('bima')) return 0;
-    if (emailLower.includes('raka') || emailLower.includes('pengamal@demo.test')) return 10000;
+    if (emailLower.includes('raka') || emailLower.includes('pengamal@khodamku.test')) return 10000;
     return 0;
   }, [invocations, user]);
 
@@ -200,11 +200,10 @@ export default function DashboardPage() {
                             key={idx}
                             type="button"
                             onClick={() => setActiveKhodamIndex(idx)}
-                            className={`h-2 rounded-full transition-all ${
-                              activeKhodamIndex === idx
+                            className={`h-2 rounded-full transition-all ${activeKhodamIndex === idx
                                 ? 'w-5 bg-[#d8b168]'
                                 : 'w-2 bg-stone-700 hover:bg-stone-500'
-                            }`}
+                              }`}
                             aria-label={`Khodam aktif ${idx + 1}`}
                           />
                         ))}
@@ -239,13 +238,12 @@ export default function DashboardPage() {
                       </div>
 
                       <span
-                        className={`text-xs font-semibold ${
-                          dueStatus.isTerlambat
+                        className={`text-xs font-semibold ${dueStatus.isTerlambat
                             ? 'text-amber-500'
                             : dueStatus.isHariIni
-                            ? 'text-amber-400'
-                            : 'text-stone-400'
-                        }`}
+                              ? 'text-amber-400'
+                              : 'text-stone-400'
+                          }`}
                       >
                         {dueStatus.statusText}
                       </span>
@@ -255,9 +253,8 @@ export default function DashboardPage() {
                     <div className="mt-5 mb-6">
                       <div className="h-1 w-full bg-stone-800 rounded-full overflow-hidden">
                         <div
-                          className={`h-full rounded-full transition-all ${
-                            dueStatus.isTerlambat ? 'bg-amber-500' : 'bg-white'
-                          }`}
+                          className={`h-full rounded-full transition-all ${dueStatus.isTerlambat ? 'bg-amber-500' : 'bg-white'
+                            }`}
                           style={{ width: progressWidth }}
                         />
                       </div>
@@ -318,8 +315,8 @@ export default function DashboardPage() {
                     ? dueStatus.isTerlambat
                       ? `Melewati tempo ${Math.abs(dueStatus.diffDays)} hari. Harap hubungi Juru Kunci.`
                       : dueStatus.isHariIni
-                      ? 'Kontrak berakhir hari ini.'
-                      : `Kontrak gaib berakhir ${dueStatus.statusText}.`
+                        ? 'Kontrak berakhir hari ini.'
+                        : `Kontrak gaib berakhir ${dueStatus.statusText}.`
                     : 'Ragamu sedang suci dan tenang tanpa ikatan gaib.'}
                 </span>
                 {activeContract && (
@@ -370,20 +367,19 @@ export default function DashboardPage() {
                 {/* Progress bar */}
                 <div className="my-3.5 h-1.5 w-full bg-stone-800 rounded-full overflow-hidden">
                   <div
-                    className={`h-full rounded-full transition-all ${
-                      activeContracts.length >= 2
+                    className={`h-full rounded-full transition-all ${activeContracts.length >= 2
                         ? 'bg-amber-400'
                         : activeContracts.length === 1
-                        ? 'bg-white'
-                        : 'bg-stone-700'
-                    }`}
+                          ? 'bg-white'
+                          : 'bg-stone-700'
+                      }`}
                     style={{
                       width:
                         activeContracts.length >= 2
                           ? '100%'
                           : activeContracts.length === 1
-                          ? '50%'
-                          : '0%',
+                            ? '50%'
+                            : '0%',
                     }}
                   />
                 </div>
@@ -392,8 +388,8 @@ export default function DashboardPage() {
                   {activeContracts.length >= 2
                     ? 'Kapasitas penuh (maksimal 2 khodam per raga).'
                     : activeContracts.length === 1
-                    ? 'Tersedia 1 slot kosong untuk memanggil satu khodam lagi.'
-                    : 'Tersedia 2 slot kosong. Kamu bisa memanggil khodam pendamping baru.'}
+                      ? 'Tersedia 1 slot kosong untuk memanggil satu khodam lagi.'
+                      : 'Tersedia 2 slot kosong. Kamu bisa memanggil khodam pendamping baru.'}
                 </p>
               </div>
 
@@ -487,11 +483,10 @@ export default function DashboardPage() {
                             return (
                               <span
                                 key={lvl}
-                                className={`w-[3px] rounded-xs ${heights[lvl - 1]} ${
-                                  isActive
+                                className={`w-[3px] rounded-xs ${heights[lvl - 1]} ${isActive
                                     ? 'bg-amber-400 group-hover:bg-amber-300'
                                     : 'bg-stone-800'
-                                }`}
+                                  }`}
                               />
                             );
                           })}

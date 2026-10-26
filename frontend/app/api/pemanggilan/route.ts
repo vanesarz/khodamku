@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
       userBaseline = allBaseline.filter((t) => t.pengamal_email.toLowerCase().includes('sekar'));
     } else if (emailLower.includes('bima')) {
       userBaseline = allBaseline.filter((t) => t.pengamal_email.toLowerCase().includes('bima'));
-    } else if (emailLower.includes('raka') || emailLower.includes('pengamal@demo.test')) {
+    } else if (emailLower.includes('raka') || emailLower.includes('pengamal@khodamku.test')) {
       userBaseline = allBaseline.filter((t) => t.pengamal_email.toLowerCase().includes('raka'));
     } else {
       userBaseline = [];
@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { khodam_id, durasi_hari = 5 } = body;
+    const { khodam_id, durasi_hari = 5, khodam_data } = body;
 
     if (!khodam_id) {
       return NextResponse.json(
@@ -122,7 +122,7 @@ export async function POST(request: NextRequest) {
       userBaseline = allBaseline.filter((t) => t.pengamal_email.toLowerCase().includes('sekar'));
     } else if (emailLower.includes('bima')) {
       userBaseline = allBaseline.filter((t) => t.pengamal_email.toLowerCase().includes('bima'));
-    } else if (emailLower.includes('raka') || emailLower.includes('pengamal@demo.test')) {
+    } else if (emailLower.includes('raka') || emailLower.includes('pengamal@khodamku.test')) {
       userBaseline = allBaseline.filter((t) => t.pengamal_email.toLowerCase().includes('raka'));
     } else {
       userBaseline = [];
@@ -169,7 +169,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 4. Create new summoned contract
-    const newContract = createSummonedContract(khodam_id, user, Number(durasi_hari) || 5);
+    const newContract = createSummonedContract(khodam_id, user, Number(durasi_hari) || 5, khodam_data);
     if (!newContract) {
       return NextResponse.json({ error: 'Khodam tidak ditemukan dalam katalog' }, { status: 404 });
     }

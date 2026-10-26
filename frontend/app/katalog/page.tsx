@@ -10,7 +10,7 @@ import { Khodam } from '@/types';
 import { MASTER_KHODAMS } from '@/lib/khodamData';
 import { useAuth } from '@/hooks/useAuth';
 
-const CATEGORIES = [
+const DEFAULT_CATEGORIES = [
   'Semua',
   'Penjaga Rumah',
   'Penglaris Dagangan',
@@ -23,6 +23,7 @@ const CATEGORIES = [
 export default function KatalogPage() {
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
+  const [categories, setCategories] = useState<string[]>(DEFAULT_CATEGORIES);
   const [selectedCategory, setSelectedCategory] = useState('Semua');
   const [onlyAvailable, setOnlyAvailable] = useState(false);
   const [selectedKhodam, setSelectedKhodam] = useState<Khodam | null>(null);
@@ -31,12 +32,13 @@ export default function KatalogPage() {
   const [dynamicKhodams, setDynamicKhodams] = useState<Khodam[]>(MASTER_KHODAMS);
   const [hasLoaded, setHasLoaded] = useState(false);
 
-  // Load user invocations to compute active slot quota and load global khodam availability
+  // Load user invocations to compute active slot quota, dynamic khodams, and categories
   const loadData = async () => {
     try {
-      const [resPemanggilan, resKhodams] = await Promise.all([
+      const [resPemanggilan, resKhodams, resCategories] = await Promise.all([
         fetch('/api/pemanggilan'),
         fetch('/api/khodams'),
+        fetch('/api/kategori'),
       ]);
 
       if (resPemanggilan.ok) {
@@ -46,11 +48,24 @@ export default function KatalogPage() {
         }
       }
 
+      let loadedKhodams: Khodam[] = [];
       if (resKhodams.ok) {
         const jsonK = await resKhodams.json();
         if (jsonK.data && Array.isArray(jsonK.data)) {
           setDynamicKhodams(jsonK.data);
+          loadedKhodams = jsonK.data;
         }
+      }
+
+      if (resCategories.ok) {
+        const jsonC = await resCategories.json();
+        if (jsonC.data && Array.isArray(jsonC.data)) {
+          const names: string[] = jsonC.data.map((c: any) => c.nama).filter(Boolean);
+          setCategories(Array.from(new Set(['Semua', ...names])));
+        }
+      } else if (loadedKhodams.length > 0) {
+        const extracted = loadedKhodams.flatMap((k) => k.kategoris.map((c) => c.nama));
+        setCategories(Array.from(new Set(['Semua', ...DEFAULT_CATEGORIES.slice(1), ...extracted])));
       }
     } catch (err) {
       console.warn('Could not load catalog data:', err);
@@ -69,7 +84,7 @@ export default function KatalogPage() {
       const emailLower = user?.email?.toLowerCase() || '';
       if (emailLower.includes('bima')) return 2;
       if (emailLower.includes('sekar')) return 1;
-      if (emailLower.includes('raka') || emailLower.includes('pengamal@demo.test')) return 1;
+      if (emailLower.includes('raka') || emailLower.includes('pengamal@khodamku.test')) return 1;
       return 0;
     }
     const actives = userInvocations.filter((i) => {
@@ -138,7 +153,7 @@ export default function KatalogPage() {
                 Pilih khodam
               </h1>
               <p className="mt-2 text-sm text-stone-400">
-                {availableCount} dari {MASTER_KHODAMS.length} unit sedang menunggu dipanggil. Nama boleh sama — setiap unit dibedakan lewat kodenya.
+                {availableCount} dari {dynamicKhodams.length} unit sedang menunggu dipanggil. Nama boleh sama — setiap unit dibedakan lewat kodenya.
               </p>
             </div>
 
@@ -182,16 +197,14 @@ export default function KatalogPage() {
               <button
                 type="button"
                 onClick={() => setOnlyAvailable(!onlyAvailable)}
-                className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                  onlyAvailable ? 'bg-[#d8b168]' : 'bg-stone-800'
-                }`}
+                className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${onlyAvailable ? 'bg-[#d8b168]' : 'bg-stone-800'
+                  }`}
                 role="switch"
                 aria-checked={onlyAvailable}
               >
                 <span
-                  className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-stone-300 shadow-md ring-0 transition duration-200 ease-in-out ${
-                    onlyAvailable ? 'translate-x-4 bg-stone-950' : 'translate-x-0'
-                  }`}
+                  className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-stone-300 shadow-md ring-0 transition duration-200 ease-in-out ${onlyAvailable ? 'translate-x-4 bg-stone-950' : 'translate-x-0'
+                    }`}
                 />
               </button>
               <span
@@ -205,18 +218,17 @@ export default function KatalogPage() {
 
           {/* Category Filter Pills */}
           <div className="flex flex-wrap items-center gap-2 mb-8">
-            {CATEGORIES.map((cat) => {
+            {categories.map((cat) => {
               const isActive = selectedCategory === cat;
               return (
                 <button
                   key={cat}
                   type="button"
                   onClick={() => setSelectedCategory(cat)}
-                  className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition-all ${
-                    isActive
+                  className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition-all ${isActive
                       ? 'bg-white text-stone-950 shadow-sm'
                       : 'border border-stone-800 bg-stone-900/40 text-stone-400 hover:border-stone-700 hover:text-stone-200'
-                  }`}
+                    }`}
                 >
                   {cat}
                 </button>
@@ -297,11 +309,10 @@ export default function KatalogPage() {
                               return (
                                 <span
                                   key={lvl}
-                                  className={`w-[3px] rounded-xs ${heights[lvl - 1]} ${
-                                    isActive
+                                  className={`w-[3px] rounded-xs ${heights[lvl - 1]} ${isActive
                                       ? 'bg-amber-400 group-hover:bg-amber-300'
                                       : 'bg-stone-800'
-                                  }`}
+                                    }`}
                                 />
                               );
                             })}

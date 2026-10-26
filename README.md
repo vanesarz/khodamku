@@ -250,7 +250,7 @@ Schema::create('pemanggilans', function (Blueprint $table) {
 Aplikasi telah dilengkapi seeder komprehensif (`php artisan db:seed`) untuk memenuhi kebutuhan inisialisasi awal pengujian:
 
 1. **User Juru Kunci (Admin):**
-   - Akun: `admin@example.com` / `password123`
+   - Akun: `admin@khodamku.test` / `password123`
    - Profil: Kantor Pusat KhodamKu, Weton Wage.
 2. **User Pengamal (Anggota):**
    - **Sekar Ayu Lestari** (`sekar@khodamku.test` / `password123`)
@@ -321,7 +321,7 @@ npm run dev
 
 | Peran Akun | Nama Pengguna | Alamat Email | Kata Sandi | Akses Utama |
 | :--- | :--- | :--- | :--- | :--- |
-| **Juru Kunci (Admin)** | Mbah Darmo | `admin@example.com` | `password123` | Dashboard Juru Kunci, Kelola Master, Pelepasan, Cetak Catatan |
+| **Juru Kunci (Admin)** | Mbah Darmo | `admin@khodamku.test` | `password123` | Dashboard Juru Kunci, Kelola Master, Pelepasan, Cetak Catatan |
 | **Pengamal 1 (User)** | Sekar Ayu Lestari | `sekar@khodamku.test` | `password123` | Dashboard Pengamal, Katalog Khodam, Pemanggilan Saya |
 | **Pengamal 2 (User)** | Bima Saputra | `bima@khodamku.test` | `password123` | Dashboard Pengamal, 2 Slot Raga Penuh, Pantau Kontrak |
 | **Pengamal 3 (User)** | Raka Pratama | `raka@khodamku.test` | `password123` | Dashboard Pengamal, Riwayat Pelepasan, Profil Pribadi |

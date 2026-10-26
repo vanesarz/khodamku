@@ -44,7 +44,7 @@ Different notification channels can have different latency and priority requirem
 Avoid creating dummy models to send notifications to arbitrary addresses.
 
 ```php
-Notification::route('mail', 'admin@example.com')->notify(new SystemAlert());
+Notification::route('mail', 'admin@khodamku.test')->notify(new SystemAlert());
 ```
 
 ## Implement `HasLocalePreference` on Notifiable Models

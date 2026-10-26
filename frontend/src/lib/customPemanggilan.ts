@@ -143,9 +143,10 @@ export function applyContractOverrides(
 export function createSummonedContract(
   khodamIdOrCode: number | string,
   user: { name: string; email: string },
-  durasiHari = 5
+  durasiHari = 5,
+  khodamData?: any
 ): SummonedContract | null {
-  const khodam = findKhodamById(khodamIdOrCode);
+  const khodam = khodamData || findKhodamById(khodamIdOrCode);
   if (!khodam) return null;
 
   const today = getStartOfToday();

@@ -94,7 +94,7 @@ Mendaftar akun baru. Role otomatis `pengamal`, profil default dibuat otomatis. T
     "user": {
         "id": 5,
         "name": "Budi",
-        "email": "budi@mail.com",
+        "email": "budi@khodamku.test",
         "role": "pengamal",
         "profile": {
             "id": 5,
@@ -128,7 +128,7 @@ Mendaftar akun baru. Role otomatis `pengamal`, profil default dibuat otomatis. T
     "user": {
         "id": 1,
         "name": "Admin",
-        "email": "admin@mail.com",
+        "email": "admin@khodamku.test",
         "role": "admin"
     }
 }

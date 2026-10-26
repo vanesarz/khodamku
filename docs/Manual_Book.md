@@ -116,7 +116,7 @@ Sistem telah dilengkapi dengan data seeder awal untuk demonstrasi:
 
 | Peran (Role) | Nama Pengguna | Alamat Email | Kata Sandi (Password) | Keterangan |
 | :--- | :--- | :--- | :--- | :--- |
-| **Juru Kunci (Admin)** | Admin 1 (Mbah Darmo) | `admin@example.com` | `password123` | Hak akses penuh admin padepokan |
+| **Juru Kunci (Admin)** | Admin 1 (Mbah Darmo) | `admin@khodamku.test` | `password123` | Hak akses penuh admin padepokan |
 | **Pengamal (User 1)** | Sekar Ayu Lestari | `sekar@khodamku.test` | `password123` | Anggota dengan 1 pemanggilan aktif |
 | **Pengamal (User 2)** | Bima Saputra | `bima@khodamku.test` | `password123` | Anggota dengan status terlambat |
 | **Pengamal (User 3)** | Raka Pratama | `raka@khodamku.test` | `password123` | Anggota baru / slot raga masih kosong |
@@ -240,7 +240,7 @@ Bagian ini ditujukan bagi Administrator Padepokan (Juru Kunci) untuk mengelola o
 
 ## 4.1 Login Administrator & Dashboard Padepokan
 
-1. Masuk melalui halaman `/login` menggunakan akun Juru Kunci (`admin@example.com` / `password123`).
+1. Masuk melalui halaman `/login` menggunakan akun Juru Kunci (`admin@khodamku.com` / `password123`).
 2. Kamu akan langsung diarahkan ke **Dashboard Utama Juru Kunci** (`/admin/dashboard`):
    - **Statistik Padepokan:** Ringkasan Total Entitas Khodam, Khodam Sedang Bersemayam, Khodam Siap Dipanggil, Total Pengamal Terdaftar, dan Transaksi yang Sedang Terlambat.
    - **Tabel Jatuh Tempo Terdekat:** Daftar pemanggilan aktif yang mendekati atau telah melewati batas 5 hari sewa.

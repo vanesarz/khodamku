@@ -46,7 +46,7 @@ export default function PemanggilanPage() {
         userTransactions = anchoredList.filter((t) => t.pengamal_email.toLowerCase().includes('sekar'));
       } else if (emailLower.includes('bima')) {
         userTransactions = anchoredList.filter((t) => t.pengamal_email.toLowerCase().includes('bima'));
-      } else if (emailLower.includes('raka') || emailLower.includes('pengamal@demo.test')) {
+      } else if (emailLower.includes('raka') || emailLower.includes('pengamal@khodamku.test')) {
         userTransactions = anchoredList.filter((t) => t.pengamal_email.toLowerCase().includes('raka'));
       } else {
         userTransactions = [];
@@ -113,8 +113,8 @@ export default function PemanggilanPage() {
                 const progressWidth = statusInfo.isTerlambat
                   ? '100%'
                   : statusInfo.isHariIni
-                  ? '90%'
-                  : `${Math.max(20, 100 - Math.abs(statusInfo.diffDays) * 20)}%`;
+                    ? '90%'
+                    : `${Math.max(20, 100 - Math.abs(statusInfo.diffDays) * 20)}%`;
 
                 const sigil = contract.khodam?.kode_khodam?.split('-')[1] || contract.khodam?.sigil || 'KHD';
 
@@ -167,13 +167,12 @@ export default function PemanggilanPage() {
                         </div>
 
                         <span
-                          className={`text-xs font-semibold ${
-                            statusInfo.isTerlambat
+                          className={`text-xs font-semibold ${statusInfo.isTerlambat
                               ? 'text-amber-500'
                               : statusInfo.isHariIni
-                              ? 'text-amber-400'
-                              : 'text-stone-400'
-                          }`}
+                                ? 'text-amber-400'
+                                : 'text-stone-400'
+                            }`}
                         >
                           {statusInfo.statusText}
                         </span>
@@ -183,9 +182,8 @@ export default function PemanggilanPage() {
                       <div className="mt-5 mb-5">
                         <div className="h-1 w-full bg-stone-800 rounded-full overflow-hidden">
                           <div
-                            className={`h-full rounded-full transition-all ${
-                              statusInfo.isTerlambat ? 'bg-amber-500' : 'bg-white'
-                            }`}
+                            className={`h-full rounded-full transition-all ${statusInfo.isTerlambat ? 'bg-amber-500' : 'bg-white'
+                              }`}
                             style={{ width: progressWidth }}
                           />
                         </div>
@@ -225,8 +223,8 @@ export default function PemanggilanPage() {
                       {statusInfo.isTerlambat
                         ? `Melewati tempo ${Math.abs(statusInfo.diffDays)} hari. Hubungi Juru Kunci untuk pelepasan.`
                         : statusInfo.isHariIni
-                        ? 'Kontrak gaib berakhir hari ini.'
-                        : `Kontrak gaib berakhir ${statusInfo.statusText}.`}
+                          ? 'Kontrak gaib berakhir hari ini.'
+                          : `Kontrak gaib berakhir ${statusInfo.statusText}.`}
                     </div>
                   </div>
                 );

@@ -65,7 +65,7 @@ export default function RiwayatPage() {
       userAnchored = allAnchored.filter((t) => t.pengamal_email.toLowerCase().includes('sekar'));
     } else if (userEmail.includes('bima')) {
       userAnchored = allAnchored.filter((t) => t.pengamal_email.toLowerCase().includes('bima'));
-    } else if (userEmail.includes('raka') || userEmail.includes('pengamal@demo.test')) {
+    } else if (userEmail.includes('raka') || userEmail.includes('pengamal@khodamku.test')) {
       userAnchored = allAnchored.filter((t) => t.pengamal_email.toLowerCase().includes('raka'));
     } else {
       userAnchored = [];
@@ -73,12 +73,12 @@ export default function RiwayatPage() {
 
     if (invocations.length > 0) {
       return invocations.map((item) => {
-        const itemStatus: 'Aktif' | 'Terlambat' | 'Dilepas' = 
+        const itemStatus: 'Aktif' | 'Terlambat' | 'Dilepas' =
           (item.status === 'dilepas' || item.tgl_pelepasan)
             ? 'Dilepas'
             : item.is_terlambat
-            ? 'Terlambat'
-            : 'Aktif';
+              ? 'Terlambat'
+              : 'Aktif';
 
         return {
           id: item.id,

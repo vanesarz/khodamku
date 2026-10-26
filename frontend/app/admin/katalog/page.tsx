@@ -1,125 +1,14 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import { Search, ArrowUpRight } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { Search, ArrowUpRight, Loader2 } from 'lucide-react';
 import Sidebar from '@/components/layout/Sidebar';
 import HeaderDate from '@/components/layout/HeaderDate';
 import KhodamDetailModal from '@/components/landing/KhodamDetailModal';
 import { Khodam } from '@/types';
+import { MASTER_KHODAMS } from '@/lib/khodamData';
 
-// The 8 Master Khodams matching the database & screenshot
-const MASTER_KHODAMS: Khodam[] = [
-  {
-    id: 1,
-    kode_khodam: 'KHD-MCP-001',
-    nama: 'Macan Putih',
-    asal: 'Alas Purwo, Banyuwangi',
-    level_kekuatan: 4,
-    deskripsi: 'Sosok macan putih sakti penjaga gerbang gaib ujung timur Jawa.',
-    foto: null,
-    status: 'Sedang Bersemayam',
-    is_tersedia: false,
-    kategoris: [
-      { id: 1, nama: 'Penjaga Rumah' },
-      { id: 4, nama: 'Kewibawaan' },
-    ],
-  },
-  {
-    id: 2,
-    kode_khodam: 'KHD-MCP-002',
-    nama: 'Macan Putih',
-    asal: 'Gunung Lawu, Karanganyar',
-    level_kekuatan: 5,
-    deskripsi: 'Siluman macan putih bertuah penunggu kabut mistis puncak Lawu.',
-    foto: null,
-    status: 'Menunggu Dipanggil',
-    is_tersedia: true,
-    kategoris: [
-      { id: 1, nama: 'Penjaga Rumah' },
-      { id: 4, nama: 'Kewibawaan' },
-    ],
-  },
-  {
-    id: 3,
-    kode_khodam: 'KHD-HRM-001',
-    nama: 'Harimau Sumatra',
-    asal: 'Bukit Barisan, Sumatra Barat',
-    level_kekuatan: 4,
-    deskripsi: 'Aura rimba Sumatra yang kuat untuk proteksi dan wibawa tingkat tinggi.',
-    foto: null,
-    status: 'Menunggu Dipanggil',
-    is_tersedia: true,
-    kategoris: [
-      { id: 4, nama: 'Kewibawaan' },
-      { id: 5, nama: 'Penolak Bala' },
-    ],
-  },
-  {
-    id: 4,
-    kode_khodam: 'KHD-KBJ-001',
-    nama: 'Kakek Berjubah Putih',
-    asal: 'Pertapaan Kendalisada',
-    level_kekuatan: 3,
-    deskripsi: 'Sosok sepuh bijak penuntun ketenangan batin dan penangkal marabahaya.',
-    foto: null,
-    status: 'Sedang Bersemayam',
-    is_tersedia: false,
-    kategoris: [
-      { id: 3, nama: 'Pelindung Ujian' },
-      { id: 5, nama: 'Penolak Bala' },
-    ],
-  },
-  {
-    id: 5,
-    kode_khodam: 'KHD-NGH-001',
-    nama: 'Naga Hijau',
-    asal: 'Telaga Sarangan, Magetan',
-    level_kekuatan: 5,
-    deskripsi: 'Naga mistis pembawa aura kemakmuran dan pelaris dagangan.',
-    foto: null,
-    status: 'Sedang Bersemayam',
-    is_tersedia: false,
-    kategoris: [{ id: 2, nama: 'Penglaris Dagangan' }],
-  },
-  {
-    id: 6,
-    kode_khodam: 'KHD-KCO-001',
-    nama: 'Kucing Oren Barbar',
-    asal: 'Gang Kelinci, Jakarta',
-    level_kekuatan: 3,
-    deskripsi: 'Penjaga rumah yang lincah, berani, dan siap mengusir energi negatif.',
-    foto: null,
-    status: 'Sedang Bersemayam',
-    is_tersedia: false,
-    kategoris: [{ id: 1, nama: 'Penjaga Rumah' }],
-  },
-  {
-    id: 7,
-    kode_khodam: 'KHD-KDP-001',
-    nama: 'Kulkas Dua Pintu',
-    asal: 'Pasar Elektronik Glodok',
-    level_kekuatan: 2,
-    deskripsi: 'Khodam pendingin emosi dan penglaris perniagaan kuliner.',
-    foto: null,
-    status: 'Menunggu Dipanggil',
-    is_tersedia: true,
-    kategoris: [{ id: 2, nama: 'Penglaris Dagangan' }],
-  },
-  {
-    id: 8,
-    kode_khodam: 'KHD-TPN-001',
-    nama: 'Tutup Panci',
-    asal: 'Dapur Bu Sum, Solo',
-    level_kekuatan: 1,
-    deskripsi: 'Menutup masa lalu dan mempermudah menemukan jodoh yang pas pasangannya.',
-    foto: null,
-    status: 'Menunggu Dipanggil',
-    is_tersedia: true,
-    kategoris: [{ id: 6, nama: 'Pencari Jodoh' }],
-  },
-];
-
-const CATEGORIES = [
+const DEFAULT_CATEGORIES = [
   'Semua',
   'Penjaga Rumah',
   'Penglaris Dagangan',
@@ -130,14 +19,55 @@ const CATEGORIES = [
 ];
 
 export default function AdminKatalogPage() {
+  const [khodams, setKhodams] = useState<Khodam[]>(MASTER_KHODAMS);
+  const [categories, setCategories] = useState<string[]>(DEFAULT_CATEGORIES);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Semua');
   const [onlyAvailable, setOnlyAvailable] = useState(false);
   const [selectedKhodam, setSelectedKhodam] = useState<Khodam | null>(null);
 
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const [resKhodams, resCats] = await Promise.all([
+        fetch('/api/admin/khodam'),
+        fetch('/api/admin/kelola/kategori'),
+      ]);
+
+      let loadedKhodams: Khodam[] = [];
+      if (resKhodams.ok) {
+        const jsonK = await resKhodams.json();
+        if (jsonK.data && Array.isArray(jsonK.data)) {
+          setKhodams(jsonK.data);
+          loadedKhodams = jsonK.data;
+        }
+      }
+
+      if (resCats.ok) {
+        const jsonC = await resCats.json();
+        if (jsonC.data && Array.isArray(jsonC.data)) {
+          const catNames: string[] = jsonC.data.map((c: any) => c.nama).filter(Boolean);
+          setCategories(Array.from(new Set(['Semua', ...catNames])));
+        }
+      } else if (loadedKhodams.length > 0) {
+        const extracted = loadedKhodams.flatMap((k) => k.kategoris.map((c) => c.nama));
+        setCategories(Array.from(new Set(['Semua', ...DEFAULT_CATEGORIES.slice(1), ...extracted])));
+      }
+    } catch (err) {
+      console.error('Fetch admin catalog error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
   // Filtering Logic
   const filteredKhodams = useMemo(() => {
-    return MASTER_KHODAMS.filter((k) => {
+    return khodams.filter((k) => {
       // 1. Availability filter
       if (onlyAvailable && k.status !== 'Menunggu Dipanggil') {
         return false;
@@ -162,7 +92,7 @@ export default function AdminKatalogPage() {
 
       return true;
     });
-  }, [searchQuery, selectedCategory, onlyAvailable]);
+  }, [khodams, searchQuery, selectedCategory, onlyAvailable]);
 
   return (
     <div className="min-h-screen bg-[#090807] text-stone-100 flex">
@@ -187,7 +117,7 @@ export default function AdminKatalogPage() {
               Pilih khodam
             </h1>
             <p className="mt-2 text-sm text-stone-400">
-              8 unit aktif di inventaris. Tampilan ini sama dengan yang dilihat Pengamal.
+              {khodams.length} unit aktif di inventaris. Tampilan ini sama dengan yang dilihat Pengamal.
             </p>
           </div>
 
@@ -233,7 +163,7 @@ export default function AdminKatalogPage() {
 
           {/* Category Filter Pills */}
           <div className="flex flex-wrap items-center gap-2 mb-8">
-            {CATEGORIES.map((cat) => {
+            {categories.map((cat) => {
               const isActive = selectedCategory === cat;
               return (
                 <button
@@ -252,8 +182,13 @@ export default function AdminKatalogPage() {
             })}
           </div>
 
-          {/* 3-Column Grid of 8 Khodam Cards */}
-          {filteredKhodams.length === 0 ? (
+          {/* Grid or Loader */}
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-24 text-stone-500">
+              <Loader2 className="h-8 w-8 animate-spin text-[#d8b168] mb-3" />
+              <p className="text-xs font-medium">Memuat katalog khodam...</p>
+            </div>
+          ) : filteredKhodams.length === 0 ? (
             <div className="rounded-xl border border-dashed border-stone-800 p-12 text-center">
               <p className="text-sm font-medium text-stone-400">
                 Tidak ada khodam yang cocok dengan filter atau kata kunci pencarian.

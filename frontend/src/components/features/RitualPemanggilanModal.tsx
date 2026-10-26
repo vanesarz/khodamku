@@ -45,6 +45,7 @@ export default function RitualPemanggilanModal({
         body: JSON.stringify({
           khodam_id: khodam.id,
           durasi_hari: durasiHari,
+          khodam_data: khodam,
         }),
       });
 

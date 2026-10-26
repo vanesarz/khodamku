@@ -423,7 +423,7 @@ Seluruh request API internal dan eksternal mengirim dan menerima data dalam form
 - **Request Body:**
   ```json
   {
-    "email": "admin@example.com",
+    "email": "admin@khodamku.test",
     "password": "password123"
   }
   ```
@@ -434,7 +434,7 @@ Seluruh request API internal dan eksternal mengirim dan menerima data dalam form
     "user": {
       "id": 1,
       "name": "Admin 1",
-      "email": "admin@example.com",
+      "email": "admin@khodamku.test",
       "role": "admin"
     }
   }
@@ -663,7 +663,7 @@ Gunakan akun berikut untuk memvalidasi dan mendemonstrasikan sistem:
 
 | Peran (Role) | Email | Password | Kegunaan Pengujian |
 | :--- | :--- | :--- | :--- |
-| **Juru Kunci (Admin)** | `admin@example.com` | `password123` | Akses penuh dashboard admin, CRUD master data, pelepasan, cetak catatan gaib. |
+| **Juru Kunci (Admin)** | `admin@khodamku.test` | `password123` | Akses penuh dashboard admin, CRUD master data, pelepasan, cetak catatan gaib. |
 | **Pengamal (User)** | `sekar@khodamku.test` | `password123` | Uji alur pemanggilan khodam, cek kuota raga, dan pemantauan kontrak aktif. |
 | **Pengamal (Terlambat)** | `bima@khodamku.test` | `password123` | Uji pemantauan keterlambatan dan pelepasan dengan denda otomatis Rp5.000/hari. |
 

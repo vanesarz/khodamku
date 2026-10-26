@@ -16,7 +16,7 @@
 | **Lingkungan Uji (Environment)** | Staging / Localhost (`http://localhost:3000` & `http://localhost:8000`) |
 | **Platform / Stack** | Laravel 13.x (PHP ^8.3), Next.js 16 (React 19, TypeScript), MySQL 8.0, Tailwind CSS |
 | **Peramban Uji (Browser)** | Google Chrome v130+, Mozilla Firefox v131+, Safari 18+ (Desktop & Mobile Viewport) |
-| **Aktor Penguji (Testers)** | 1. **Juru Kunci (Admin):** Mbah Darmo (`admin@example.com`)<br>2. **Pengamal (User):** Sekar Ayu Lestari (`sekar@khodamku.test`), Bima Saputra (`bima@khodamku.test`) |
+| **Aktor Penguji (Testers)** | 1. **Juru Kunci (Admin):** Mbah Darmo (`admin@khodamku.test`)<br>2. **Pengamal (User):** Sekar Ayu Lestari (`sekar@khodamku.test`), Bima Saputra (`bima@khodamku.test`) |
 
 ---
 
@@ -70,7 +70,7 @@ User Acceptance Testing (UAT) ini dilaksanakan untuk memvalidasi seluruh fungsi,
 
 | Test ID | Skenario Pengujian | Prekondisi | Langkah-Langkah Pengujian | Hasil yang Diharapkan | Hasil Aktual | Status |
 | :--- | :--- | :--- | :--- | :--- | :--- | :---: |
-| **UAT-01** | Login dengan kredensial Juru Kunci (Admin) yang valid | Akun admin aktif di database (`admin@example.com`) | 1. Buka halaman `/login`<br>2. Masukkan email `admin@example.com` dan password `password123`<br>3. Klik tombol "Buka Segel & Masuk" | Berhasil login, menerima session token, diarahkan otomatis ke Dashboard Admin (`/admin/dashboard`) | Diarahkan ke `/admin/dashboard` dengan salam sapaan Admin dan widget padepokan lengkap | **PASS** |
+| **UAT-01** | Login dengan kredensial Juru Kunci (Admin) yang valid | Akun admin aktif di database (`admin@khodamku.test`) | 1. Buka halaman `/login`<br>2. Masukkan email `admin@khodamku.test` dan password `password123`<br>3. Klik tombol "Buka Segel & Masuk" | Berhasil login, menerima session token, diarahkan otomatis ke Dashboard Admin (`/admin/dashboard`) | Diarahkan ke `/admin/dashboard` dengan salam sapaan Admin dan widget padepokan lengkap | **PASS** |
 | **UAT-02** | Login dengan kredensial Pengamal (User) yang valid | Akun pengamal aktif di database (`sekar@khodamku.test`) | 1. Buka halaman `/login`<br>2. Masukkan email `sekar@khodamku.test` dan password `password123`<br>3. Klik tombol "Buka Segel & Masuk" | Berhasil login, diarahkan otomatis ke Dashboard Pengamal (`/dashboard`) | Masuk ke `/dashboard` menampilkan slot raga `1/2` dan daftar khodam aktif milik Sekar | **PASS** |
 | **UAT-03** | Percobaan login dengan password keliru | Akun terdaftar di database | 1. Buka halaman `/login`<br>2. Masukkan email terdaftar dengan password salah (`salah123`)<br>3. Submit form | Sistem menolak autentikasi, menampilkan pesan peringatan tanpa membocorkan eksistensi data | Menampilkan pesan "Kredensial yang dimasukkan tidak sesuai catatan gaib kami" | **PASS** |
 | **UAT-04** | Akses route halaman internal tanpa autentikasi (Guest Protection) | Pengguna belum melakukan login | 1. Akses langsung URL `/admin/dashboard`, `/pemanggilan`, atau `/profil` melalui address bar | Middleware menolak akses dan mengarahkan pengguna kembali ke `/login` | Otomatis diredirect ke `/login` | **PASS** |

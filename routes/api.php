@@ -12,6 +12,10 @@ use App\Http\Controllers\Riwayat\RiwayatController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+// Katalog & Kategori Publik
+Route::get('/khodam', [PemanggilanController::class, 'index']);
+Route::get('/kategori', [KategoriController::class, 'index']);
+
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/user', function (Request $request) {
@@ -21,7 +25,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/profile', [ProfileController::class, 'show']);
     Route::post('/profile', [ProfileController::class, 'update']);
 
-    Route::get('/khodam', [PemanggilanController::class, 'index']);
     Route::post('/pemanggilan', [PemanggilanController::class, 'store']);
     Route::get('/pemanggilan/aktif', [PemanggilanController::class, 'myActive']);
     Route::get('/riwayat', [RiwayatController::class, 'index']);
