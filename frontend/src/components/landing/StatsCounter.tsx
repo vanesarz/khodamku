@@ -1,7 +1,42 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+
 export default function StatsCounter() {
+  const [khodamCount, setKhodamCount] = useState<number | string>(8);
+  const [categoryCount, setCategoryCount] = useState<number | string>(6);
+
+  useEffect(() => {
+    async function loadStats() {
+      try {
+        const [resK, resC] = await Promise.all([
+          fetch('/api/khodams'),
+          fetch('/api/kategori'),
+        ]);
+
+        if (resK.ok) {
+          const jsonK = await resK.json();
+          if (jsonK.data && Array.isArray(jsonK.data)) {
+            setKhodamCount(jsonK.data.length);
+          }
+        }
+
+        if (resC.ok) {
+          const jsonC = await resC.json();
+          if (jsonC.data && Array.isArray(jsonC.data)) {
+            setCategoryCount(jsonC.data.length);
+          }
+        }
+      } catch (e) {
+        // Fallback to default counts
+      }
+    }
+    loadStats();
+  }, []);
+
   const stats = [
-    { value: '8', label: 'unit khodam' },
-    { value: '6', label: 'kategori' },
+    { value: `${khodamCount}`, label: 'unit khodam' },
+    { value: `${categoryCount}`, label: 'kategori' },
     { value: '5 hari', label: 'maksimal pemanggilan' },
     { value: 'Rp5.000', label: 'mahar denda / hari' },
   ];
