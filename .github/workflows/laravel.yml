@@ -17,7 +17,7 @@ jobs:
     - name: Setup PHP Environment
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.3'
+        php-version: '8.4'
         extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, bcmath, sqlite3
         coverage: none
 
@@ -25,8 +25,8 @@ jobs:
       run: php -r "file_exists('.env') || copy('.env.example', '.env');"
 
     - name: Install Composer Dependencies
-      # --ignore-platform-req=php+ mencegah error jika composer.lock mengunci versi PHP spesifik
-      run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist --ignore-platform-req=php+
+      # --ignore-platform-req=php mencegah error jika composer.lock mengunci versi patch PHP spesifik
+      run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist --ignore-platform-req=php
 
     - name: Generate Application Key
       run: php artisan key:generate
