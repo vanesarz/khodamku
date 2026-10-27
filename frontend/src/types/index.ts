@@ -6,6 +6,7 @@ export interface Profile {
   weton: string;
   tanggal_lahir: string | null;
   foto: string | null;
+  foto_url?: string | null;
   created_at?: string;
   updated_at?: string;
 }

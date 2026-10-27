@@ -43,17 +43,31 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 });
     }
 
-    const body = await request.json();
+    const contentType = request.headers.get('content-type') || '';
+    let res: Response;
 
-    const res = await fetch(`${LARAVEL_API_URL}/profile`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-      body: JSON.stringify(body),
-    });
+    if (contentType.includes('multipart/form-data')) {
+      const formData = await request.formData();
+      res = await fetch(`${LARAVEL_API_URL}/profile`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+        },
+        body: formData,
+      });
+    } else {
+      const body = await request.json();
+      res = await fetch(`${LARAVEL_API_URL}/profile`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify(body),
+      });
+    }
 
     const data = await res.json();
 

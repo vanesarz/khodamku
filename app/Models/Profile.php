@@ -19,6 +19,18 @@ class Profile extends Model
         'foto',
     ];
 
+    /**
+     * @var list<string>
+     */
+    protected $appends = [
+        'foto_url',
+    ];
+
+    public function getFotoUrlAttribute(): ?string
+    {
+        return $this->foto ? asset('storage/'.$this->foto) : null;
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

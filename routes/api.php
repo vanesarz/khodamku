@@ -24,6 +24,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/profile', [ProfileController::class, 'show']);
     Route::post('/profile', [ProfileController::class, 'update']);
+    Route::post('/profile/password', [ProfileController::class, 'updatePassword']);
 
     Route::post('/pemanggilan', [PemanggilanController::class, 'store']);
     Route::get('/pemanggilan/aktif', [PemanggilanController::class, 'myActive']);

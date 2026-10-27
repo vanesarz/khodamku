@@ -15,7 +15,7 @@ import {
   Users,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { getInitials } from '@/lib/utils';
+import { getInitials, getStorageUrl } from '@/lib/utils';
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -28,6 +28,7 @@ export default function Sidebar() {
     : user?.name || 'Pengamal';
   const userRole = isAdmin ? 'Juru Kunci' : 'Pengamal';
   const initials = getInitials(userName);
+  const avatarUrl = getStorageUrl(user?.profile?.foto_url || user?.profile?.foto);
 
   // Pengamal Navigation Menu
   const pengamalNavigation = [
@@ -218,8 +219,18 @@ export default function Sidebar() {
       {/* Bottom Profile Card */}
       <div className="rounded-xl border border-stone-800/80 bg-[#12100e] p-3 flex items-center justify-between mt-4">
         <div className="flex items-center gap-2.5 min-w-0">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-stone-700 bg-stone-900 text-xs font-bold text-stone-300">
-            {initials}
+          <div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-stone-700 bg-stone-900 text-xs font-bold text-stone-300 overflow-hidden">
+            {avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt={userName}
+                className="h-full w-full object-cover"
+                onError={(e) => {
+                  (e.currentTarget as HTMLElement).style.display = 'none';
+                }}
+              />
+            ) : null}
+            <span className={avatarUrl ? 'hidden' : ''}>{initials}</span>
           </div>
           <div className="min-w-0 flex-1">
             <p className="truncate text-xs font-bold text-white">

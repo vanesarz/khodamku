@@ -30,8 +30,11 @@ class KelolaKhodamTest extends TestCase
     use RefreshDatabase;
 
     private User $admin;
+
     private User $pengamal;
+
     private Kategori $kategori1;
+
     private Kategori $kategori2;
 
     protected function setUp(): void

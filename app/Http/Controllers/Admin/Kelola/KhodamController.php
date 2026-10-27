@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Storage;
 
 class KhodamController extends Controller
 {
-    // 1. Ambil daftar khodam 
+    // 1. Ambil daftar khodam
     public function index(Request $request): JsonResponse
     {
         $query = Khodam::with('kategoris')
@@ -23,7 +23,7 @@ class KhodamController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('nama', 'like', "%{$search}%")
-                  ->orWhere('kode_khodam', 'like', "%{$search}%");
+                    ->orWhere('kode_khodam', 'like', "%{$search}%");
             });
         }
 
@@ -49,10 +49,10 @@ class KhodamController extends Controller
                 'asal' => $item->asal,
                 'level_kekuatan' => $item->level_kekuatan,
                 'deskripsi' => $item->deskripsi,
-                'foto' => $item->foto ? asset('storage/' . $item->foto) : null,
+                'foto' => $item->foto ? asset('storage/'.$item->foto) : null,
                 'status' => $item->is_bersemayam ? 'Sedang Bersemayam' : 'Menunggu Dipanggil',
-                'is_tersedia' => !$item->is_bersemayam,
-                'kategoris' => $item->kategoris->map(fn($k) => [
+                'is_tersedia' => ! $item->is_bersemayam,
+                'kategoris' => $item->kategoris->map(fn ($k) => [
                     'id' => $k->id,
                     'nama' => $k->nama,
                 ]),
@@ -110,10 +110,10 @@ class KhodamController extends Controller
                 'asal' => $khodam->asal,
                 'level_kekuatan' => $khodam->level_kekuatan,
                 'deskripsi' => $khodam->deskripsi,
-                'foto' => $khodam->foto ? asset('storage/' . $khodam->foto) : null,
+                'foto' => $khodam->foto ? asset('storage/'.$khodam->foto) : null,
                 'status' => $khodam->is_bersemayam ? 'Sedang Bersemayam' : 'Menunggu Dipanggil',
-                'is_tersedia' => !$khodam->is_bersemayam,
-                'kategoris' => $khodam->kategoris->map(fn($k) => [
+                'is_tersedia' => ! $khodam->is_bersemayam,
+                'kategoris' => $khodam->kategoris->map(fn ($k) => [
                     'id' => $k->id,
                     'nama' => $k->nama,
                 ]),
@@ -127,7 +127,7 @@ class KhodamController extends Controller
         $khodam = Khodam::findOrFail($id);
 
         $validated = $request->validate([
-            'kode_khodam' => ['required', 'string', 'max:50', 'unique:khodams,kode_khodam,' . $id],
+            'kode_khodam' => ['required', 'string', 'max:50', 'unique:khodams,kode_khodam,'.$id],
             'nama' => ['required', 'string', 'max:255'],
             'asal' => ['required', 'string', 'max:255'],
             'level_kekuatan' => ['required', 'integer', 'min:1', 'max:5'],

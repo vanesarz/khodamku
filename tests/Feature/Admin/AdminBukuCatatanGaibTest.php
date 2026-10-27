@@ -14,9 +14,13 @@ class AdminBukuCatatanGaibTest extends TestCase
     use RefreshDatabase;
 
     private User $admin;
+
     private User $pengamal1;
+
     private User $pengamal2;
+
     private Khodam $khodam1;
+
     private Khodam $khodam2;
 
     protected function setUp(): void

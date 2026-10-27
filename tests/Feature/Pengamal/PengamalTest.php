@@ -27,8 +27,11 @@ class PengamalTest extends TestCase
     use RefreshDatabase;
 
     private User $pengamal;
+
     private User $lain;
+
     private Khodam $khodam1;
+
     private Khodam $khodam2;
 
     protected function setUp(): void
@@ -118,7 +121,7 @@ class PengamalTest extends TestCase
             ])
             ->assertJsonPath('data.0.id', $kedua->id)
             ->assertJsonPath('data.1.id', $pertama->id)
-            ->assertJsonPath('data.0.kode_transaksi', 'PMG-' . str_pad($kedua->id, 4, '0', STR_PAD_LEFT))
+            ->assertJsonPath('data.0.kode_transaksi', 'PMG-'.str_pad($kedua->id, 4, '0', STR_PAD_LEFT))
             ->assertJsonPath('data.0.khodam.nama', 'Macan Putih')
             ->assertJsonPath('data.0.tgl_pelepasan_formatted', '—');
     }
@@ -139,7 +142,7 @@ class PengamalTest extends TestCase
 
         $ids = fn (string $status) => collect(
             $this->actingAs($this->pengamal, 'sanctum')
-                ->getJson('/api/v1/riwayat?status=' . $status)
+                ->getJson('/api/v1/riwayat?status='.$status)
                 ->assertStatus(200)
                 ->json('data')
         )->pluck('id')->all();

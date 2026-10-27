@@ -3,7 +3,6 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use App\Models\Profile;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -52,7 +51,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Relasi 1 User memiliki 1 Profil 
+     * Relasi 1 User memiliki 1 Profil
      */
     public function profile(): HasOne
     {

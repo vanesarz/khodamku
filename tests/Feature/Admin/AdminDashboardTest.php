@@ -28,6 +28,7 @@ class AdminDashboardTest extends TestCase
     private const URL = '/api/v1/admin/dashboard';
 
     private User $admin;
+
     private User $pengamal;
 
     protected function setUp(): void
@@ -157,7 +158,7 @@ class AdminDashboardTest extends TestCase
         }
 
         $this->actingAs($this->admin, 'sanctum')
-            ->getJson(self::URL . '/jatuh-tempo-terdekat')
+            ->getJson(self::URL.'/jatuh-tempo-terdekat')
             ->assertStatus(200)
             ->assertJsonCount(4, 'data')
             ->assertJsonPath('data.0.status_badge', '1 hari lagi');
@@ -169,7 +170,7 @@ class AdminDashboardTest extends TestCase
         $this->siapkanData();
 
         $this->actingAs($this->admin, 'sanctum')
-            ->getJson(self::URL . '/kategori')
+            ->getJson(self::URL.'/kategori')
             ->assertStatus(200)
             ->assertJsonCount(2, 'data')
             ->assertJsonPath('data.0.nama', 'Kewibawaan')
@@ -184,7 +185,7 @@ class AdminDashboardTest extends TestCase
         $this->siapkanData();
 
         $this->actingAs($this->admin, 'sanctum')
-            ->getJson(self::URL . '/statistik')
+            ->getJson(self::URL.'/statistik')
             ->assertStatus(200)
             ->assertJsonPath('data.jumlah_unit', 3)
             ->assertJsonPath('data.terlambat', 1);
@@ -196,7 +197,7 @@ class AdminDashboardTest extends TestCase
         $this->siapkanData();
 
         $this->actingAs($this->admin, 'sanctum')
-            ->getJson(self::URL . '/ringkasan')
+            ->getJson(self::URL.'/ringkasan')
             ->assertStatus(200)
             ->assertJsonPath('data.ringkasan.estimasi_mahar_terlambat', 15000)
             ->assertJsonPath('data.pengamal_terdaftar', 1)
@@ -220,7 +221,7 @@ class AdminDashboardTest extends TestCase
     {
         foreach (['', '/statistik', '/jatuh-tempo-terdekat', '/kategori', '/ringkasan'] as $path) {
             $this->actingAs($this->pengamal, 'sanctum')
-                ->getJson(self::URL . $path)
+                ->getJson(self::URL.$path)
                 ->assertStatus(403);
         }
     }

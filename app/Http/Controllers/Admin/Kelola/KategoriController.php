@@ -5,9 +5,8 @@ namespace App\Http\Controllers\Admin\Kelola;
 use App\Http\Controllers\Controller;
 use App\Models\Kategori;
 use App\Models\Khodam;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-
+use Illuminate\Http\Request;
 
 class KategoriController extends Controller
 {
@@ -17,7 +16,7 @@ class KategoriController extends Controller
         $query = Kategori::query();
 
         if ($request->has('search')) {
-            $query->where('nama', 'like', '%' . $request->search . '%');
+            $query->where('nama', 'like', '%'.$request->search.'%');
         }
 
         $kategoris = $query->get();

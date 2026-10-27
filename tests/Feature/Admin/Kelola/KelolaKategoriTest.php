@@ -27,6 +27,7 @@ class KelolaKategoriTest extends TestCase
     private const URL = '/api/v1/admin/kelola/kategori';
 
     private User $admin;
+
     private User $pengamal;
 
     protected function setUp(): void
@@ -63,7 +64,7 @@ class KelolaKategoriTest extends TestCase
         $this->buatKategori('Kewibawaan', 'Meningkatkan wibawa.');
 
         $this->actingAs($this->admin, 'sanctum')
-            ->getJson(self::URL . '?search=Wibawa')
+            ->getJson(self::URL.'?search=Wibawa')
             ->assertStatus(200)
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('data.0.nama', 'Kewibawaan');
@@ -99,7 +100,7 @@ class KelolaKategoriTest extends TestCase
         $kategori = $this->buatKategori();
 
         $this->actingAs($this->admin, 'sanctum')
-            ->getJson(self::URL . "/{$kategori->id}")
+            ->getJson(self::URL."/{$kategori->id}")
             ->assertStatus(200)
             ->assertJsonPath('message', 'Detail kategori')
             ->assertJsonPath('data.id', $kategori->id);
@@ -109,7 +110,7 @@ class KelolaKategoriTest extends TestCase
     public function test_detail_kategori_tidak_ditemukan(): void
     {
         $this->actingAs($this->admin, 'sanctum')
-            ->getJson(self::URL . '/9999')
+            ->getJson(self::URL.'/9999')
             ->assertStatus(404);
     }
 
@@ -119,7 +120,7 @@ class KelolaKategoriTest extends TestCase
         $kategori = $this->buatKategori();
 
         $this->actingAs($this->admin, 'sanctum')
-            ->postJson(self::URL . "/{$kategori->id}", [
+            ->postJson(self::URL."/{$kategori->id}", [
                 'nama' => 'Nama Baru',
                 'deskripsi' => 'Deskripsi baru.',
             ])
@@ -140,7 +141,7 @@ class KelolaKategoriTest extends TestCase
         $kategori = $this->buatKategori();
 
         $this->actingAs($this->admin, 'sanctum')
-            ->postJson(self::URL . "/{$kategori->id}", ['nama' => ''])
+            ->postJson(self::URL."/{$kategori->id}", ['nama' => ''])
             ->assertStatus(422)
             ->assertJsonValidationErrors(['nama', 'deskripsi']);
     }
@@ -151,7 +152,7 @@ class KelolaKategoriTest extends TestCase
         $kategori = $this->buatKategori();
 
         $this->actingAs($this->admin, 'sanctum')
-            ->deleteJson(self::URL . "/{$kategori->id}")
+            ->deleteJson(self::URL."/{$kategori->id}")
             ->assertStatus(200)
             ->assertJsonPath('message', 'Kategori berhasil dihapus');
 
@@ -172,7 +173,7 @@ class KelolaKategoriTest extends TestCase
         $khodam->kategoris()->attach($kategori->id);
 
         $this->actingAs($this->admin, 'sanctum')
-            ->deleteJson(self::URL . "/{$kategori->id}")
+            ->deleteJson(self::URL."/{$kategori->id}")
             ->assertStatus(400)
             ->assertJsonPath('message', 'Kategori tidak dapat dihapus karena masih digunakan oleh khodam');
 

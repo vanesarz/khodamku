@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { Menu, X, LayoutDashboard, User, LogOut, ChevronDown } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { getInitials } from '@/lib/utils';
+import { getInitials, getStorageUrl } from '@/lib/utils';
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -12,6 +12,7 @@ export default function Navbar() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { user, logout } = useAuth();
 
+  const userAvatarUrl = getStorageUrl(user?.profile?.foto_url || user?.profile?.foto);
   const dashboardHref = user?.role === 'admin' ? '/admin/dashboard' : '/dashboard';
 
   // Close dropdown on click outside
@@ -75,8 +76,18 @@ export default function Navbar() {
                 className="flex items-center gap-2 rounded-full border border-stone-800 bg-[#12100e] py-1 pl-1.5 pr-3 text-xs text-stone-200 transition-colors hover:border-stone-700 hover:bg-stone-900"
                 aria-expanded={userDropdownOpen}
               >
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#d8b168]/20 text-[10px] font-bold text-[#d8b168]">
-                  {getInitials(user.name)}
+                <span className="relative flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#d8b168]/20 text-[10px] font-bold text-[#d8b168] overflow-hidden">
+                  {userAvatarUrl ? (
+                    <img
+                      src={userAvatarUrl}
+                      alt={user.name}
+                      className="h-full w-full object-cover"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLElement).style.display = 'none';
+                      }}
+                    />
+                  ) : null}
+                  <span className={userAvatarUrl ? 'hidden' : ''}>{getInitials(user.name)}</span>
                 </span>
                 <span className="max-w-[130px] truncate font-medium text-white">{user.name}</span>
                 <ChevronDown className={`h-3 w-3 text-stone-400 transition-transform ${userDropdownOpen ? 'rotate-180' : ''}`} />

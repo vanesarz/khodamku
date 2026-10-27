@@ -26,3 +26,17 @@ export function getInitials(name: string): string {
   if (parts.length === 1) return parts[0].slice(0, 3).toUpperCase();
   return (parts[0][0] + (parts[1]?.[0] || '') + (parts[2]?.[0] || '')).toUpperCase();
 }
+
+export function getStorageUrl(path?: string | null): string | null {
+  if (!path) return null;
+  if (
+    path.startsWith('http://') ||
+    path.startsWith('https://') ||
+    path.startsWith('blob:') ||
+    path.startsWith('data:')
+  ) {
+    return path;
+  }
+  const storageBase = process.env.NEXT_PUBLIC_STORAGE_URL || 'http://localhost:8000/storage';
+  return `${storageBase.replace(/\/+$/, '')}/${path.replace(/^\/+/, '')}`;
+}

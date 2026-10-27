@@ -470,6 +470,24 @@ Seluruh request API internal dan eksternal mengirim dan menerima data dalam form
   }
   ```
 
+### 3. `POST /api/profile/password`
+- **Akses:** Terautentikasi (Semua Peran)
+- **Deskripsi:** Mengubah kata sandi akun pengguna yang sedang login dengan memvalidasi kata sandi saat ini dan konfirmasi kata sandi baru (minimal 8 karakter).
+- **Request Body:**
+  ```json
+  {
+    "current_password": "password123",
+    "password": "newpassword456",
+    "password_confirmation": "newpassword456"
+  }
+  ```
+- **Response Sukses (200 OK):**
+  ```json
+  {
+    "message": "Kata sandi berhasil diperbarui"
+  }
+  ```
+
 ---
 
 ## 6.3 Modul Pengamal (Katalog & Pemanggilan)

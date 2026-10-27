@@ -16,7 +16,7 @@ class CheckRole
         // Memastikan pengguna sudah login dan role sesuai
         if (! $request->user() || $request->user()->role !== $role) {
             return response()->json([
-                'message' => 'Akses ditolak. Endpoint ini hanya untuk peran ' . $role . '.'
+                'message' => 'Akses ditolak. Endpoint ini hanya untuk peran '.$role.'.',
             ], 403);
         }
 

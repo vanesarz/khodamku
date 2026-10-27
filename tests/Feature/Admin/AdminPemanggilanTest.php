@@ -14,7 +14,9 @@ class AdminPemanggilanTest extends TestCase
     use RefreshDatabase;
 
     private User $admin;
+
     private User $pengamal;
+
     private Khodam $khodam;
 
     protected function setUp(): void

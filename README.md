@@ -17,6 +17,7 @@ KhodamKu adalah aplikasi web sistem informasi peminjaman dan persewaan unit yang
 | **Kategori Aplikasi** | Web Application Decoupled (REST API + Single Page Application) |
 | **Teknologi Backend** | PHP ^8.3, Laravel 13.x, Laravel Sanctum, MySQL / MariaDB |
 | **Teknologi Frontend**| Next.js 16 (App Router), React 19, TypeScript, Vanilla CSS & Tailwind CSS |
+| **Laporan Proyek PDF** | 📄 [Laporan_Proyek_KhodamKu.pdf](Laporan_Proyek_KhodamKu.pdf) *(Dokumen Laporan Lengkap Terpadu)* |
 
 ### 👥 Nama Team
 
