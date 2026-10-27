@@ -150,7 +150,7 @@ export default function KhodamDetailModal({
                 className="inline-flex items-center gap-2 rounded-lg bg-[#d8b168] px-5 py-2.5 text-xs font-bold text-stone-950 hover:bg-[#c99f52] transition-colors shadow-lg shadow-amber-950/40 cursor-pointer"
               >
                 <Sparkles className="h-3.5 w-3.5" />
-                <span>Panggil Khodam Ini</span>
+                <span>Ajukan Pemanggilan</span>
               </button>
             ) : (
               <button

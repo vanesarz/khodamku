@@ -27,6 +27,18 @@ export default function CalloutSection() {
 
           {/* Content */}
           <div className="relative z-10 px-6 py-16 sm:px-12 sm:py-20 lg:max-w-xl">
+            <div className="mb-4 inline-flex items-center gap-2">
+              <Image
+                src="/images/logo.png"
+                alt="KhodamKu"
+                width={28}
+                height={28}
+                className="h-7 w-7 rounded-full object-contain"
+              />
+              <span className="text-xs font-semibold tracking-wider text-amber-400 uppercase">
+                Buku Catatan Gaib
+              </span>
+            </div>
             <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl leading-tight">
               Semua tercatat <br />
               di Buku Catatan Gaib.

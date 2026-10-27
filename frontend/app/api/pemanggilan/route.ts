@@ -134,14 +134,18 @@ export async function POST(request: NextRequest) {
 
     const effectiveUserContracts = applyContractOverrides(userBaseline, userCustom, releasedIds);
     const activeContracts = effectiveUserContracts.filter(
-      (t) => t.status === 'Aktif' || t.status === 'Terlambat'
+      (t) =>
+        t.status === 'Aktif' ||
+        t.status === 'Terlambat' ||
+        t.status === 'Menunggu Persetujuan' ||
+        t.status === 'Menunggu Pelepasan'
     );
 
     if (activeContracts.length >= 2) {
       return NextResponse.json(
         {
           error:
-            'Batas raga penuh! Ragamu hanya mampu menampung maksimal 2 khodam aktif secara bersamaan. Hubungi Juru Kunci untuk melepaskan salah satu khodam terlebih dahulu.',
+            'Batas raga penuh! Ragamu hanya mampu menampung maksimal 2 khodam (aktif atau dalam proses permintaan). Hubungi Juru Kunci untuk melepaskan salah satu khodam terlebih dahulu.',
         },
         { status: 400 }
       );
@@ -150,7 +154,11 @@ export async function POST(request: NextRequest) {
     // 3. Check if this khodam is currently active across the entire system
     const allEffectiveContracts = applyContractOverrides(allBaseline, existingCustom, releasedIds);
     const allActive = allEffectiveContracts.filter(
-      (t) => t.status === 'Aktif' || t.status === 'Terlambat'
+      (t) =>
+        t.status === 'Aktif' ||
+        t.status === 'Terlambat' ||
+        t.status === 'Menunggu Persetujuan' ||
+        t.status === 'Menunggu Pelepasan'
     );
 
     const isAlreadyActive = allActive.some(
@@ -162,13 +170,13 @@ export async function POST(request: NextRequest) {
     if (isAlreadyActive) {
       return NextResponse.json(
         {
-          error: 'Khodam ini sedang bersemayam di raga pengamal lain dan belum dilepaskan.',
+          error: 'Khodam ini sedang bersemayam atau sedang dalam proses permohonan pengamal lain.',
         },
         { status: 400 }
       );
     }
 
-    // 4. Create new summoned contract
+    // 4. Create new summoned contract (pending approval)
     const newContract = createSummonedContract(khodam_id, user, Number(durasi_hari) || 5, khodam_data);
     if (!newContract) {
       return NextResponse.json({ error: 'Khodam tidak ditemukan dalam katalog' }, { status: 404 });
@@ -187,9 +195,27 @@ export async function POST(request: NextRequest) {
       maxAge: maxAge30Days,
     });
 
+    // 6. Forward to Laravel backend if possible
+    try {
+      const LARAVEL_API_URL = process.env.LARAVEL_API_URL || 'http://localhost:8000/api/v1';
+      await fetch(`${LARAVEL_API_URL}/pemanggilan`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          khodam_id: Number(khodam_id),
+        }),
+      });
+    } catch (e) {
+      console.warn('Backend pemanggilan store call skipped or failed:', e);
+    }
+
     return NextResponse.json({
       success: true,
-      message: `Ritual berhasil disempurnakan! Khodam ${newContract.khodam.nama} kini bersemayam di ragamu.`,
+      message: `Permintaan pemanggilan khodam ${newContract.khodam.nama} berhasil diajukan! Menunggu persetujuan Juru Kunci.`,
       data: newContract,
     });
   } catch (error: any) {

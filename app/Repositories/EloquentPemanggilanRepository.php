@@ -27,14 +27,14 @@ class EloquentPemanggilanRepository implements PemanggilanRepositoryInterface
     public function hitungAktifUser(int $userId): int
     {
         return Pemanggilan::where('user_id', $userId)
-            ->where('status', 'aktif')
+            ->whereIn('status', ['aktif', 'menunggu_persetujuan', 'menunggu_pelepasan'])
             ->count();
     }
 
     public function khodamSedangAktif(int $khodamId): bool
     {
         return Pemanggilan::where('khodam_id', $khodamId)
-            ->where('status', 'aktif')
+            ->whereIn('status', ['aktif', 'menunggu_persetujuan', 'menunggu_pelepasan'])
             ->exists();
     }
 
@@ -47,7 +47,7 @@ class EloquentPemanggilanRepository implements PemanggilanRepositoryInterface
     {
         return Pemanggilan::with(['khodam.kategoris'])
             ->where('user_id', $userId)
-            ->where('status', 'aktif')
+            ->whereIn('status', ['aktif', 'menunggu_persetujuan', 'menunggu_pelepasan'])
             ->orderBy('tgl_jatuh_tempo', 'asc')
             ->get();
     }
@@ -55,7 +55,14 @@ class EloquentPemanggilanRepository implements PemanggilanRepositoryInterface
     public function ambilAktifUntukDiubah(int $id): Pemanggilan
     {
         return Pemanggilan::with(['user', 'khodam'])
-            ->where('status', 'aktif')
+            ->whereIn('status', ['aktif', 'menunggu_pelepasan'])
+            ->lockForUpdate()
+            ->findOrFail($id);
+    }
+
+    public function ambilUntukDiubah(int $id): Pemanggilan
+    {
+        return Pemanggilan::with(['user', 'khodam'])
             ->lockForUpdate()
             ->findOrFail($id);
     }

@@ -88,8 +88,15 @@ export default function KatalogPage() {
       return 0;
     }
     const actives = userInvocations.filter((i) => {
-      const s = String(i.status || '').toLowerCase();
-      return s === 'aktif' || s === 'terlambat';
+      const s = String(i.status || '').toLowerCase().trim();
+      return (
+        s === 'aktif' ||
+        s === 'terlambat' ||
+        s === 'menunggu persetujuan' ||
+        s === 'menunggu_persetujuan' ||
+        s === 'menunggu pelepasan' ||
+        s === 'menunggu_pelepasan'
+      );
     });
     return actives.length;
   }, [userInvocations, user, hasLoaded]);

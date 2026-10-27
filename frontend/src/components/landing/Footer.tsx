@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function Footer() {
   return (
@@ -6,7 +7,14 @@ export default function Footer() {
       <div className="mx-auto flex max-w-7xl flex-col gap-8 px-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
         {/* Brand & Tagline */}
         <div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
+            <Image
+              src="/images/logo.png"
+              alt="Logo KhodamKu"
+              width={28}
+              height={28}
+              className="h-7 w-7 rounded-full object-contain"
+            />
             <span className="text-lg font-bold tracking-tight text-white">
               KhodamKu
             </span>

@@ -56,7 +56,7 @@ class PemanggilanServiceTest extends TestCase
                 'khodam_id' => 3,
                 'tgl_panggil' => '2026-10-26',
                 'tgl_jatuh_tempo' => '2026-10-31',
-                'status' => 'aktif',
+                'status' => 'menunggu_persetujuan',
             ])
             ->andReturn(new Pemanggilan);
 

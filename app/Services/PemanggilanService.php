@@ -59,29 +59,122 @@ class PemanggilanService
                 'khodam_id' => $khodamId,
                 'tgl_panggil' => $tglPanggil->toDateString(),
                 'tgl_jatuh_tempo' => $tglJatuhTempo->toDateString(),
-                'status' => 'aktif',
+                'status' => 'menunggu_persetujuan',
             ]);
         });
     }
 
     /**
+     * Admin menyetujui pemanggilan khodam.
+     */
+    public function approvePanggil(int $id, ?string $catatan = null): Pemanggilan
+    {
+        return DB::transaction(function () use ($id, $catatan) {
+            $pemanggilan = $this->repository->ambilUntukDiubah($id);
+
+            if ($pemanggilan->status !== 'menunggu_persetujuan') {
+                throw new \DomainException('Permintaan pemanggilan ini tidak dapat disetujui karena statusnya bukan menunggu persetujuan.');
+            }
+
+            $today = Carbon::today();
+            $durasiHari = (int) config('khodamku.durasi_hari', 5);
+
+            $pemanggilan->update([
+                'status' => 'aktif',
+                'tgl_panggil' => $today->toDateString(),
+                'tgl_jatuh_tempo' => $today->copy()->addDays($durasiHari)->toDateString(),
+                'catatan_admin' => $catatan,
+            ]);
+
+            return $pemanggilan;
+        });
+    }
+
+    /**
+     * Admin menolak pemanggilan khodam.
+     */
+    public function rejectPanggil(int $id, ?string $catatan = null): Pemanggilan
+    {
+        return DB::transaction(function () use ($id, $catatan) {
+            $pemanggilan = $this->repository->ambilUntukDiubah($id);
+
+            if ($pemanggilan->status !== 'menunggu_persetujuan') {
+                throw new \DomainException('Permintaan pemanggilan ini tidak dapat ditolak karena statusnya bukan menunggu persetujuan.');
+            }
+
+            $pemanggilan->update([
+                'status' => 'ditolak',
+                'catatan_admin' => $catatan,
+            ]);
+
+            return $pemanggilan;
+        });
+    }
+
+    /**
+     * Pengamal mengajukan pelepasan khodam yang sedang bersemayam.
+     */
+    public function requestLepas(User $user, int $id): Pemanggilan
+    {
+        return DB::transaction(function () use ($user, $id) {
+            $pemanggilan = Pemanggilan::where('user_id', $user->id)
+                ->where('status', 'aktif')
+                ->lockForUpdate()
+                ->findOrFail($id);
+
+            $pemanggilan->update([
+                'status' => 'menunggu_pelepasan',
+            ]);
+
+            return $pemanggilan;
+        });
+    }
+
+    /**
      * Lepas khodam hari ini dan catat mahar denda menurut KebijakanDenda.
+     * Dapat digunakan saat admin menyetujui pelepasan atau pelepasan manual langsung.
      *
      * @return array{pemanggilan: Pemanggilan, hari_terlambat: int}
      */
-    public function lepas(int $id): array
+    public function lepas(int $id, ?string $catatan = null): array
     {
-        return DB::transaction(function () use ($id) {
+        return DB::transaction(function () use ($id, $catatan) {
             $pemanggilan = $this->repository->ambilAktifUntukDiubah($id);
 
             $today = Carbon::today();
             $jatuhTempo = Carbon::parse($pemanggilan->tgl_jatuh_tempo);
             $mahar = $this->kebijakanDenda->hitung($jatuhTempo, $today);
 
+            $lepasResult = $this->repository->lepas($pemanggilan, $today, $mahar);
+            if ($catatan) {
+                $lepasResult->update(['catatan_admin' => $catatan]);
+            }
+
             return [
-                'pemanggilan' => $this->repository->lepas($pemanggilan, $today, $mahar),
+                'pemanggilan' => $lepasResult,
                 'hari_terlambat' => StatusJatuhTempo::hariTerlambat($jatuhTempo, $today),
             ];
+        });
+    }
+
+    /**
+     * Admin menolak permohonan pelepasan (mengembalikan status ke aktif).
+     */
+    public function rejectLepas(int $id, ?string $catatan = null): Pemanggilan
+    {
+        return DB::transaction(function () use ($id, $catatan) {
+            $pemanggilan = $this->repository->ambilUntukDiubah($id);
+
+            if ($pemanggilan->status !== 'menunggu_pelepasan') {
+                throw new \DomainException('Permintaan pelepasan tidak valid untuk ditolak.');
+            }
+
+            $pemanggilan->update([
+                'status' => 'aktif',
+                'catatan_admin' => $catatan,
+            ]);
+
+            return $pemanggilan;
         });
     }
 

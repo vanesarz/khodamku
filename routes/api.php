@@ -27,6 +27,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/profile/password', [ProfileController::class, 'updatePassword']);
 
     Route::post('/pemanggilan', [PemanggilanController::class, 'store']);
+    Route::post('/pemanggilan/{id}/lepas', [PemanggilanController::class, 'requestLepas']);
+    Route::post('/pemanggilan/{id}/request-lepas', [PemanggilanController::class, 'requestLepas']);
     Route::get('/pemanggilan/aktif', [PemanggilanController::class, 'myActive']);
     Route::get('/riwayat', [RiwayatController::class, 'index']);
 
@@ -47,8 +49,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/users/{id}', [AdminUserController::class, 'update']);
         Route::delete('/users/{id}', [AdminUserController::class, 'destroy']);
 
-        // Pemanggilan
+        // Pemanggilan (Approval Workflow & Operasional)
         Route::get('/pemanggilan/aktif', [AdminPemanggilanController::class, 'index']);
+        Route::post('/pemanggilan/{id}/setujui-panggil', [AdminPemanggilanController::class, 'setujuiPanggil']);
+        Route::post('/pemanggilan/{id}/tolak-panggil', [AdminPemanggilanController::class, 'tolakPanggil']);
+        Route::post('/pemanggilan/{id}/setujui-lepas', [AdminPemanggilanController::class, 'setujuiLepas']);
+        Route::post('/pemanggilan/{id}/tolak-lepas', [AdminPemanggilanController::class, 'tolakLepas']);
         Route::post('/pemanggilan/{id}/lepas', [AdminPemanggilanController::class, 'lepas']);
 
         // Buku Catatan Gaib (Riwayat)

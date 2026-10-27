@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Menu, X, LayoutDashboard, User, LogOut, ChevronDown } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { getInitials, getStorageUrl } from '@/lib/utils';
@@ -27,10 +28,18 @@ export default function Navbar() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-stone-800/80 bg-[#090807]/90 backdrop-blur-md">
+    <header className="sticky top-0 z-50 w-full border-b border-stone-800/80 bg-[#090807]/90 backdrop-blur-md print:hidden">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Brand Logo */}
-        <Link href="/" className="group flex items-center gap-2">
+        <Link href="/" className="group flex items-center gap-2.5">
+          <Image
+            src="/images/logo.png"
+            alt="Logo KhodamKu"
+            width={34}
+            height={34}
+            className="h-8.5 w-8.5 rounded-full object-contain transition-transform group-hover:scale-105"
+            priority
+          />
           <span className="text-xl font-bold tracking-tight text-white transition-colors group-hover:text-amber-300">
             KhodamKu
           </span>

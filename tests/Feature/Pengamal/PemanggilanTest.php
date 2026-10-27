@@ -54,16 +54,16 @@ class PemanggilanTest extends TestCase
         $this->actingAs($this->pengamal, 'sanctum')
             ->postJson(self::URL, ['khodam_id' => $khodam->id, 'tgl_panggil' => '2026-10-01'])
             ->assertCreated()
-            ->assertJsonPath('message', 'Pemanggilan berhasil dilakukan')
+            ->assertJsonPath('message', 'Permintaan pemanggilan berhasil diajukan, menunggu persetujuan Juru Kunci')
             ->assertJsonPath('data.khodam.kode_khodam', 'KHD-001')
-            ->assertJsonPath('data.status', 'aktif');
+            ->assertJsonPath('data.status', 'menunggu_persetujuan');
 
         $this->assertDatabaseHas('pemanggilans', [
             'user_id' => $this->pengamal->id,
             'khodam_id' => $khodam->id,
             'tgl_panggil' => '2026-10-01',
             'tgl_jatuh_tempo' => '2026-10-06',
-            'status' => 'aktif',
+            'status' => 'menunggu_persetujuan',
         ]);
     }
 
@@ -153,5 +153,21 @@ class PemanggilanTest extends TestCase
             ->assertOk()
             ->assertJsonPath('data.0.status_badge', 'Hari ini')
             ->assertJsonPath('data.0.estimasi_mahar', 0);
+    }
+
+    public function test_pengamal_bisa_mengajukan_pelepasan_khodam(): void
+    {
+        $aktif = $this->buatPemanggilanAktif($this->pengamal, $this->buatKhodam('KHD-001'), 2);
+
+        $this->actingAs($this->pengamal, 'sanctum')
+            ->postJson(self::URL."/{$aktif->id}/request-lepas")
+            ->assertOk()
+            ->assertJsonPath('message', 'Permintaan pelepasan khodam berhasil diajukan, menunggu konfirmasi Juru Kunci')
+            ->assertJsonPath('data.id', $aktif->id);
+
+        $this->assertDatabaseHas('pemanggilans', [
+            'id' => $aktif->id,
+            'status' => 'menunggu_pelepasan',
+        ]);
     }
 }

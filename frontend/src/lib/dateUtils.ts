@@ -15,18 +15,18 @@ const INDO_DAYS = [
 ];
 
 const INDO_MONTHS_MAP: Record<string, number> = {
-  januari: 0, jan: 0,
-  februari: 1, feb: 1,
-  maret: 2, mar: 2,
+  januari: 0, jan: 0, january: 0,
+  februari: 1, feb: 1, february: 1,
+  maret: 2, mar: 2, march: 2,
   april: 3, apr: 3,
-  mei: 4,
-  juni: 5, jun: 5,
-  juli: 6, jul: 6,
-  agustus: 7, ags: 7,
+  mei: 4, may: 4,
+  juni: 5, jun: 5, june: 5,
+  juli: 6, jul: 6, july: 6,
+  agustus: 7, ags: 7, aug: 7, august: 7,
   september: 8, sep: 8,
-  oktober: 9, okt: 9,
+  oktober: 9, okt: 9, oct: 9, october: 9,
   november: 10, nov: 10,
-  desember: 11, des: 11,
+  desember: 11, des: 11, dec: 11, december: 11,
 };
 
 /**

@@ -41,9 +41,14 @@ interface PemanggilanRepositoryInterface
     public function aktifMilikUser(int $userId): Collection;
 
     /**
-     * Ambil pemanggilan berstatus aktif dan kunci barisnya; 404 jika tidak ada.
+     * Ambil pemanggilan berstatus aktif atau menunggu pelepasan dan kunci barisnya; 404 jika tidak ada.
      */
     public function ambilAktifUntukDiubah(int $id): Pemanggilan;
+
+    /**
+     * Ambil pemanggilan apa saja untuk diubah dan kunci barisnya.
+     */
+    public function ambilUntukDiubah(int $id): Pemanggilan;
 
     public function lepas(Pemanggilan $pemanggilan, Carbon $tglPelepasan, int $mahar): Pemanggilan;
 }

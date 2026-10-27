@@ -18,6 +18,7 @@ class Pemanggilan extends Model
         'tgl_pelepasan',
         'mahar',
         'status',
+        'catatan_admin',
     ];
 
     public function user(): BelongsTo

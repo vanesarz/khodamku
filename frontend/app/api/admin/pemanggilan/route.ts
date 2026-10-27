@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { AUTH_COOKIE_NAME } from '@/lib/auth';
-import { getAnchoredTransactions, anchorTransaction } from '@/lib/dateUtils';
+import { getAnchoredTransactions } from '@/lib/dateUtils';
 import {
   SUMMONED_COOKIE_NAME,
   RELEASED_COOKIE_NAME,
@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const tab = searchParams.get('tab') || 'semua';
 
-    // 1. Fetch real active contracts directly from Laravel backend
+    // 1. Fetch real active and pending contracts directly from Laravel backend
     let backendData: any[] = [];
     let backendTabs: any = null;
 
@@ -53,30 +53,52 @@ export async function GET(request: NextRequest) {
 
     // If backend data succeeded:
     if (backendData.length > 0 || backendTabs) {
-      // Exclude contracts released via cookie
       const filteredBackend = backendData.filter((item) => !releasedIds.includes(item.id));
-      const activeCustom = customContracts
-        .filter((c) => !releasedIds.includes(c.id))
-        .filter((c) => c.status === 'Aktif' || c.status === 'Terlambat');
+      const unreleasedCustom = customContracts.filter((c) => !releasedIds.includes(c.id));
 
-      let combined = [...filteredBackend, ...activeCustom];
-      if (tab === 'terlambat') {
-        combined = combined.filter((i) => i.is_terlambat);
+      let customMatchesTab: any[] = [];
+      if (tab === 'permintaan_panggil') {
+        customMatchesTab = unreleasedCustom.filter((c) => c.status === 'Menunggu Persetujuan');
+      } else if (tab === 'permintaan_lepas') {
+        customMatchesTab = unreleasedCustom.filter((c) => c.status === 'Menunggu Pelepasan');
+      } else if (tab === 'terlambat') {
+        customMatchesTab = unreleasedCustom.filter((c) => c.status === 'Terlambat');
       } else if (tab === 'masih_berjalan') {
-        combined = combined.filter((i) => !i.is_terlambat);
+        customMatchesTab = unreleasedCustom.filter((c) => c.status === 'Aktif' && !c.is_terlambat);
+      } else {
+        // 'semua'
+        customMatchesTab = unreleasedCustom.filter(
+          (c) => c.status === 'Aktif' || c.status === 'Terlambat' || c.status === 'Menunggu Pelepasan'
+        );
       }
 
-      const allActiveUnfiltered = [
-        ...backendData.filter((item) => !releasedIds.includes(item.id)),
-        ...activeCustom,
-      ];
+      const combined = [...filteredBackend, ...customMatchesTab];
+
+      const countPanggil =
+        (backendTabs?.permintaan_panggil || 0) +
+        unreleasedCustom.filter((c) => c.status === 'Menunggu Persetujuan').length;
+      const countLepas =
+        (backendTabs?.permintaan_lepas || 0) +
+        unreleasedCustom.filter((c) => c.status === 'Menunggu Pelepasan').length;
+      const countTerlambat =
+        (backendTabs?.terlambat || 0) + unreleasedCustom.filter((c) => c.status === 'Terlambat').length;
+      const countMasihBerjalan =
+        (backendTabs?.masih_berjalan || 0) +
+        unreleasedCustom.filter((c) => c.status === 'Aktif' && !c.is_terlambat).length;
+      const countSemua =
+        (backendTabs?.semua || 0) +
+        unreleasedCustom.filter(
+          (c) => c.status === 'Aktif' || c.status === 'Terlambat' || c.status === 'Menunggu Pelepasan'
+        ).length;
 
       return NextResponse.json({
         message: 'Daftar pemanggilan aktif berhasil dimuat',
         tabs: {
-          semua: allActiveUnfiltered.length,
-          terlambat: allActiveUnfiltered.filter((i) => i.is_terlambat).length,
-          masih_berjalan: allActiveUnfiltered.filter((i) => !i.is_terlambat).length,
+          semua: countSemua,
+          terlambat: countTerlambat,
+          masih_berjalan: countMasihBerjalan,
+          permintaan_panggil: countPanggil,
+          permintaan_lepas: countLepas,
         },
         data: combined.map((item) => ({
           id: item.id,
@@ -87,13 +109,18 @@ export async function GET(request: NextRequest) {
             kode_khodam: item.khodam?.kode_khodam || 'KHD-001',
             sigil: item.khodam?.sigil || item.khodam?.kode_khodam?.split('-')[1] || 'KHD',
           },
+          status: item.status || (item.is_terlambat ? 'Terlambat' : 'Aktif'),
           tgl_panggil: item.tgl_panggil,
           tgl_jatuh_tempo: item.tgl_jatuh_tempo,
           tgl_jatuh_tempo_raw: item.tgl_jatuh_tempo_raw || item.tgl_jatuh_tempo || '',
           status_badge: item.status_badge,
-          estimasi_mahar: typeof item.estimasi_mahar === 'number'
-            ? `Rp${item.estimasi_mahar.toLocaleString('id-ID')}`
-            : (item.estimasi_mahar ? String(item.estimasi_mahar).replace('~', '') : 'Rp0'),
+          catatan_admin: item.catatan_admin || null,
+          estimasi_mahar:
+            typeof item.estimasi_mahar === 'number'
+              ? `Rp${item.estimasi_mahar.toLocaleString('id-ID')}`
+              : item.estimasi_mahar
+                ? String(item.estimasi_mahar).replace('~', '')
+                : 'Rp0',
           mahar: typeof item.estimasi_mahar === 'number' ? item.estimasi_mahar : Number(item.mahar) || 0,
           is_terlambat: Boolean(item.is_terlambat),
         })),
@@ -103,21 +130,38 @@ export async function GET(request: NextRequest) {
     // Local fallback if backend is unreachable
     const all = getAnchoredTransactions();
     const combinedAll = applyContractOverrides(all, customContracts, releasedIds);
-    const activeOnly = combinedAll.filter((item) => item.status === 'Aktif' || item.status === 'Terlambat');
 
-    let filtered = activeOnly;
-    if (tab === 'terlambat') {
-      filtered = activeOnly.filter((i) => i.is_terlambat);
+    const countPanggil = combinedAll.filter((i) => i.status === 'Menunggu Persetujuan').length;
+    const countLepas = combinedAll.filter((i) => i.status === 'Menunggu Pelepasan').length;
+    const countTerlambat = combinedAll.filter((i) => i.status === 'Terlambat').length;
+    const countMasihBerjalan = combinedAll.filter((i) => i.status === 'Aktif' && !i.is_terlambat).length;
+    const countSemua = combinedAll.filter(
+      (i) => i.status === 'Aktif' || i.status === 'Terlambat' || i.status === 'Menunggu Pelepasan'
+    ).length;
+
+    let filtered: any[] = [];
+    if (tab === 'permintaan_panggil') {
+      filtered = combinedAll.filter((i) => i.status === 'Menunggu Persetujuan');
+    } else if (tab === 'permintaan_lepas') {
+      filtered = combinedAll.filter((i) => i.status === 'Menunggu Pelepasan');
+    } else if (tab === 'terlambat') {
+      filtered = combinedAll.filter((i) => i.status === 'Terlambat');
     } else if (tab === 'masih_berjalan') {
-      filtered = activeOnly.filter((i) => !i.is_terlambat);
+      filtered = combinedAll.filter((i) => i.status === 'Aktif' && !i.is_terlambat);
+    } else {
+      filtered = combinedAll.filter(
+        (i) => i.status === 'Aktif' || i.status === 'Terlambat' || i.status === 'Menunggu Pelepasan'
+      );
     }
 
     return NextResponse.json({
       message: 'Daftar pemanggilan aktif berhasil dimuat',
       tabs: {
-        semua: activeOnly.length,
-        terlambat: activeOnly.filter((i) => i.is_terlambat).length,
-        masih_berjalan: activeOnly.filter((i) => !i.is_terlambat).length,
+        semua: countSemua,
+        terlambat: countTerlambat,
+        masih_berjalan: countMasihBerjalan,
+        permintaan_panggil: countPanggil,
+        permintaan_lepas: countLepas,
       },
       data: filtered.map((item) => ({
         id: item.id,
@@ -128,10 +172,12 @@ export async function GET(request: NextRequest) {
           kode_khodam: item.khodam?.kode_khodam || 'KHD-001',
           sigil: item.khodam?.sigil || 'KHD',
         },
+        status: item.status,
         tgl_panggil: item.tgl_panggil,
         tgl_jatuh_tempo: item.tgl_jatuh_tempo,
         tgl_jatuh_tempo_raw: item.tgl_jatuh_tempo_raw || '',
         status_badge: item.status_badge,
+        catatan_admin: item.catatan_admin || null,
         estimasi_mahar: item.mahar_formatted ? item.mahar_formatted.replace('~', '') : 'Rp0',
         mahar: Number(item.mahar) || 0,
         is_terlambat: item.is_terlambat,

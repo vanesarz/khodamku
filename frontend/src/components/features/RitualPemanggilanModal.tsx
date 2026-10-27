@@ -95,30 +95,30 @@ export default function RitualPemanggilanModal({
             </div>
 
             <p className="text-xs font-semibold tracking-wider text-[#d8b168] uppercase">
-              Ritual Disempurnakan
+              Permintaan Diajukan
             </p>
             <h2 className="mt-1 text-2xl font-extrabold text-white">
-              Khodam Berhasil Dipanggil!
+              Menunggu Persetujuan Juru Kunci
             </h2>
             <p className="mt-2 text-xs text-stone-300 max-w-sm mx-auto leading-relaxed">
-              Energi gaib <span className="font-bold text-amber-300">{khodam.nama}</span> ({khodam.kode_khodam}) kini telah menyatu dan bersemayam di ragamu.
+              Permohonan memanggil <span className="font-bold text-amber-300">{khodam.nama}</span> ({khodam.kode_khodam}) telah diteruskan. Khodam akan aktif setelah disetujui oleh Admin (Juru Kunci).
             </p>
 
             {/* Summary card */}
             <div className="my-6 rounded-xl border border-stone-800/80 bg-stone-950/70 p-4 text-left text-xs space-y-2">
               <div className="flex justify-between items-center">
-                <span className="text-stone-400">Tanggal Pemanggilan</span>
+                <span className="text-stone-400">Tanggal Pengajuan</span>
                 <span className="font-medium text-stone-200">{tglPanggilFormatted}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-stone-400">Jatuh Tempo Kontrak</span>
-                <span className="font-bold text-amber-300">{tglJatuhTempoFormatted}</span>
+                <span className="text-stone-400">Durasi Kontrak Gaib</span>
+                <span className="font-bold text-amber-300">{durasiHari} Hari</span>
               </div>
               <div className="flex justify-between items-center pt-2 border-t border-stone-800/80">
-                <span className="text-stone-400">Status Entitas</span>
-                <span className="inline-flex items-center gap-1.5 text-emerald-400 font-semibold">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  <span>Sedang Bersemayam</span>
+                <span className="text-stone-400">Status Permohonan</span>
+                <span className="inline-flex items-center gap-1.5 text-amber-400 font-semibold">
+                  <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
+                  <span>Menunggu Persetujuan Admin</span>
                 </span>
               </div>
             </div>
@@ -133,7 +133,7 @@ export default function RitualPemanggilanModal({
                 }}
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-[#d8b168] px-5 py-2.5 text-xs font-bold text-stone-950 hover:bg-[#c99f52] transition-colors shadow-lg shadow-amber-950/40"
               >
-                <span>Lihat di Pemanggilan Saya</span>
+                <span>Lihat Status di Pemanggilan Saya</span>
                 <ArrowRight className="h-3.5 w-3.5" />
               </button>
               <button
@@ -141,7 +141,7 @@ export default function RitualPemanggilanModal({
                 onClick={onClose}
                 className="w-full sm:w-auto rounded-lg border border-stone-800 bg-stone-900/60 px-4 py-2.5 text-xs font-medium text-stone-300 hover:text-white transition-colors"
               >
-                Tetap di Katalog
+                Kembali ke Katalog
               </button>
             </div>
           </div>
@@ -266,7 +266,7 @@ export default function RitualPemanggilanModal({
 
                 {/* Spiritual reminder */}
                 <p className="text-[11px] text-stone-500 leading-relaxed italic">
-                  * Setelah ritual selesai, khodam akan mendampingi ragamu selama {durasiHari} hari. Pelepasan sebelum atau setelah tempo dilakukan melalui Juru Kunci.
+                  * Permintaan ini membutuhkan persetujuan Juru Kunci (Admin) terlebih dahulu. Setelah disetujui, khodam akan mendampingi ragamu selama {durasiHari} hari.
                 </p>
               </div>
             )}
@@ -292,12 +292,12 @@ export default function RitualPemanggilanModal({
                   {isSubmitting ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin text-stone-950" />
-                      <span>Merapalkan Mantra...</span>
+                      <span>Mengajukan Permohonan...</span>
                     </>
                   ) : (
                     <>
                       <Sparkles className="h-4 w-4" />
-                      <span>Mulai Ritual Pemanggilan</span>
+                      <span>Ajukan Permintaan Pemanggilan</span>
                     </>
                   )}
                 </button>

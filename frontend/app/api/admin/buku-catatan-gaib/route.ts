@@ -65,19 +65,26 @@ export async function GET(request: NextRequest) {
     if (backendData.length > 0 || backendRingkasan) {
       // Apply release overrides if any was released only locally
       let list = backendData.map((item) => {
+        const rawPanggil = item.raw_tgl_panggil || item.tgl_panggil_raw || item.tgl_panggil;
+        const baseItem = {
+          ...item,
+          raw_tgl_panggil: rawPanggil,
+          tgl_panggil_raw: rawPanggil,
+        };
         if (releasedIds.includes(item.id) && item.status !== 'Dilepas') {
           return {
-            ...item,
+            ...baseItem,
             status: 'Dilepas',
             tgl_pelepasan_formatted: item.tgl_pelepasan_formatted !== '—' ? item.tgl_pelepasan_formatted : 'Hari ini',
           };
         }
-        return item;
+        return baseItem;
       });
 
       // Append custom contracts
       const formattedCustom = customContracts.map((c) => {
         const isRel = releasedIds.includes(c.id) || c.status === 'Dilepas';
+        const rawPanggil = c.tgl_panggil_raw || c.tgl_panggil;
         return {
           id: c.id,
           kode_transaksi: c.kode_transaksi,
@@ -88,6 +95,8 @@ export async function GET(request: NextRequest) {
           },
           tgl_panggil: c.tgl_panggil_raw || c.tgl_panggil,
           tgl_panggil_formatted: c.tgl_panggil,
+          raw_tgl_panggil: rawPanggil,
+          tgl_panggil_raw: rawPanggil,
           tgl_jatuh_tempo: c.tgl_jatuh_tempo_raw || c.tgl_jatuh_tempo,
           tgl_jatuh_tempo_formatted: c.tgl_jatuh_tempo,
           tgl_pelepasan: isRel ? (c.tgl_pelepasan_raw || 'Hari ini') : null,
@@ -108,10 +117,10 @@ export async function GET(request: NextRequest) {
         list = list.filter((i) => i.status.toLowerCase() === status.toLowerCase());
       }
       if (dariTanggal) {
-        list = list.filter((i) => (i.tgl_panggil || '') >= dariTanggal);
+        list = list.filter((i) => (i.raw_tgl_panggil || i.tgl_panggil || '') >= dariTanggal);
       }
       if (sampaiTanggal) {
-        list = list.filter((i) => (i.tgl_panggil || '') <= sampaiTanggal);
+        list = list.filter((i) => (i.raw_tgl_panggil || i.tgl_panggil || '') <= sampaiTanggal);
       }
 
       const totalMahar = list.reduce((sum, item) => sum + (Number(item.mahar) || 0), 0);

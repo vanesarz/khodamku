@@ -19,7 +19,7 @@ class PemanggilanController extends Controller
     {
         $query = Khodam::with('kategoris')
             ->withExists(['pemanggilans as is_bersemayam' => function ($q) {
-                $q->where('status', 'aktif');
+                $q->whereIn('status', ['aktif', 'menunggu_persetujuan', 'menunggu_pelepasan']);
             }]);
 
         // Filter pencarian berdasarkan nama atau kode khodam
@@ -41,7 +41,7 @@ class PemanggilanController extends Controller
         // Filter toggle: hanya tampilkan yang tersedia (Menunggu Dipanggil)
         if ($request->boolean('hanya_tersedia')) {
             $query->whereDoesntHave('pemanggilans', function ($q) {
-                $q->where('status', 'aktif');
+                $q->whereIn('status', ['aktif', 'menunggu_persetujuan', 'menunggu_pelepasan']);
             });
         }
 
@@ -69,7 +69,7 @@ class PemanggilanController extends Controller
         ]);
     }
 
-    // 2. Simpan pemanggilan khodam baru oleh Pengamal
+    // 2. Simpan permintaan pemanggilan khodam baru oleh Pengamal
     public function store(Request $request, PemanggilanService $service): JsonResponse
     {
         $request->validate([
@@ -85,12 +85,23 @@ class PemanggilanController extends Controller
         );
 
         return response()->json([
-            'message' => 'Pemanggilan berhasil dilakukan',
+            'message' => 'Permintaan pemanggilan berhasil diajukan, menunggu persetujuan Juru Kunci',
             'data' => $pemanggilan->load('khodam:id,kode_khodam,nama,asal,level_kekuatan'),
         ], 201);
     }
 
-    // 3. Lihat daftar khodam yang sedang dipinjam oleh Pengamal sendiri (F-14)
+    // 3. Pengamal mengajukan pelepasan khodam
+    public function requestLepas(Request $request, int $id, PemanggilanService $service): JsonResponse
+    {
+        $pemanggilan = $service->requestLepas($request->user(), $id);
+
+        return response()->json([
+            'message' => 'Permintaan pelepasan khodam berhasil diajukan, menunggu konfirmasi Juru Kunci',
+            'data' => $pemanggilan->load('khodam:id,kode_khodam,nama,asal,level_kekuatan'),
+        ]);
+    }
+
+    // 4. Lihat daftar khodam yang sedang dipinjam atau dalam proses oleh Pengamal sendiri
     public function myActive(Request $request, PemanggilanService $service, KebijakanDenda $kebijakanDenda): JsonResponse
     {
         $today = Carbon::today();
@@ -99,14 +110,22 @@ class PemanggilanController extends Controller
             ->map(function ($item) use ($today, $kebijakanDenda) {
                 $jatuhTempo = Carbon::parse($item->tgl_jatuh_tempo);
 
+                $statusBadge = match ($item->status) {
+                    'menunggu_persetujuan' => 'Menunggu Persetujuan',
+                    'menunggu_pelepasan' => 'Menunggu Pelepasan',
+                    default => StatusJatuhTempo::badge($jatuhTempo, $today),
+                };
+
                 return [
                     'id' => $item->id,
                     'kode_transaksi' => 'PMG-'.str_pad($item->id, 4, '0', STR_PAD_LEFT),
                     'tgl_panggil' => $item->tgl_panggil,
                     'tgl_jatuh_tempo' => $item->tgl_jatuh_tempo,
-                    'status_badge' => StatusJatuhTempo::badge($jatuhTempo, $today),
+                    'status' => $item->status,
+                    'status_badge' => $statusBadge,
+                    'catatan_admin' => $item->catatan_admin,
                     'estimasi_mahar' => $kebijakanDenda->hitung($jatuhTempo, $today),
-                    'is_terlambat' => StatusJatuhTempo::hariTerlambat($jatuhTempo, $today) > 0,
+                    'is_terlambat' => $item->status === 'aktif' && StatusJatuhTempo::hariTerlambat($jatuhTempo, $today) > 0,
                     'khodam' => [
                         'id' => $item->khodam?->id,
                         'kode_khodam' => $item->khodam?->kode_khodam,
@@ -119,7 +138,7 @@ class PemanggilanController extends Controller
 
         return response()->json([
             'message' => 'Daftar pemanggilan aktif Anda berhasil dimuat',
-            'kuota_terpakai' => $aktif->count(),
+            'kuota_terpakai' => $aktif->whereIn('status', ['aktif', 'menunggu_persetujuan', 'menunggu_pelepasan'])->count(),
             'kuota_maksimal' => (int) config('khodamku.maksimal_aktif'),
             'data' => $aktif,
         ]);

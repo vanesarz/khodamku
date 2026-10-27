@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
@@ -62,15 +63,25 @@ export default function Sidebar() {
   ];
 
   return (
-    <aside className="fixed inset-y-0 left-0 z-40 flex w-64 flex-col justify-between border-r border-stone-800/80 bg-[#090807] p-5">
+    <aside className="fixed inset-y-0 left-0 z-40 flex w-64 flex-col justify-between border-r border-stone-800/80 bg-[#090807] p-5 print:hidden">
       {/* Top: Logo & Nav */}
       <div className="overflow-y-auto">
         {/* Brand */}
-        <Link href="/" className="inline-block group mb-8">
-          <span className="text-xl font-bold tracking-tight text-white group-hover:text-amber-300 transition-colors">
-            KhodamKu
-          </span>
-          <div className="h-[2px] w-8 bg-[#d8b168] mt-1 group-hover:w-12 transition-all duration-300" />
+        <Link href="/" className="flex items-center gap-3 group mb-8">
+          <Image
+            src="/images/logo.png"
+            alt="Logo KhodamKu"
+            width={36}
+            height={36}
+            className="h-9 w-9 rounded-full object-contain transition-transform group-hover:scale-105"
+            priority
+          />
+          <div>
+            <span className="text-xl font-bold tracking-tight text-white group-hover:text-amber-300 transition-colors block leading-tight">
+              KhodamKu
+            </span>
+            <div className="h-[2px] w-8 bg-[#d8b168] mt-1 group-hover:w-12 transition-all duration-300" />
+          </div>
         </Link>
 
         {/* Menu Navigation according to Role */}

@@ -10,9 +10,16 @@ export default function HeroSection() {
           {/* Left Column: Typography & CTAs */}
           <div className="lg:col-span-6 flex flex-col justify-center">
             {/* Eyebrow badge */}
-            <div className="inline-flex items-center gap-2 mb-4">
+            <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 rounded-full border border-stone-800 bg-stone-900/70 backdrop-blur-sm self-start">
+              <Image
+                src="/images/logo.png"
+                alt="KhodamKu"
+                width={18}
+                height={18}
+                className="h-4.5 w-4.5 rounded-full object-contain"
+              />
               <span className="text-[11px] font-semibold tracking-wider text-amber-400 uppercase">
-                Platform Sewa Khodam
+                Platform Sewa Khodam Resmi
               </span>
             </div>
 

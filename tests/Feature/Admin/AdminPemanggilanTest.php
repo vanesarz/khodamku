@@ -178,4 +178,112 @@ class AdminPemanggilanTest extends TestCase
 
         $response->assertStatus(401);
     }
+
+    /** 8. Admin bisa menyetujui permintaan pemanggilan */
+    public function test_admin_bisa_menyetujui_permintaan_pemanggilan(): void
+    {
+        $pemanggilan = Pemanggilan::create([
+            'user_id' => $this->pengamal->id,
+            'khodam_id' => $this->khodam->id,
+            'tgl_panggil' => Carbon::today()->toDateString(),
+            'tgl_jatuh_tempo' => Carbon::today()->addDays(5)->toDateString(),
+            'status' => 'menunggu_persetujuan',
+            'mahar' => 0,
+        ]);
+
+        $response = $this->actingAs($this->admin, 'sanctum')
+            ->postJson("/api/v1/admin/pemanggilan/{$pemanggilan->id}/setujui-panggil", [
+                'catatan' => 'Disetujui oleh Juru Kunci Darmo',
+            ]);
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.status', 'aktif');
+
+        $this->assertDatabaseHas('pemanggilans', [
+            'id' => $pemanggilan->id,
+            'status' => 'aktif',
+            'catatan_admin' => 'Disetujui oleh Juru Kunci Darmo',
+        ]);
+    }
+
+    /** 9. Admin bisa menolak permintaan pemanggilan */
+    public function test_admin_bisa_menolak_permintaan_pemanggilan(): void
+    {
+        $pemanggilan = Pemanggilan::create([
+            'user_id' => $this->pengamal->id,
+            'khodam_id' => $this->khodam->id,
+            'tgl_panggil' => Carbon::today()->toDateString(),
+            'tgl_jatuh_tempo' => Carbon::today()->addDays(5)->toDateString(),
+            'status' => 'menunggu_persetujuan',
+            'mahar' => 0,
+        ]);
+
+        $response = $this->actingAs($this->admin, 'sanctum')
+            ->postJson("/api/v1/admin/pemanggilan/{$pemanggilan->id}/tolak-panggil", [
+                'catatan' => 'Aura spiritual belum selaras',
+            ]);
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.status', 'ditolak');
+
+        $this->assertDatabaseHas('pemanggilans', [
+            'id' => $pemanggilan->id,
+            'status' => 'ditolak',
+            'catatan_admin' => 'Aura spiritual belum selaras',
+        ]);
+    }
+
+    /** 10. Admin bisa menyetujui permintaan pelepasan khodam */
+    public function test_admin_bisa_menyetujui_permintaan_pelepasan(): void
+    {
+        $pemanggilan = Pemanggilan::create([
+            'user_id' => $this->pengamal->id,
+            'khodam_id' => $this->khodam->id,
+            'tgl_panggil' => Carbon::today()->subDays(3)->toDateString(),
+            'tgl_jatuh_tempo' => Carbon::today()->addDays(2)->toDateString(),
+            'status' => 'menunggu_pelepasan',
+            'mahar' => 0,
+        ]);
+
+        $response = $this->actingAs($this->admin, 'sanctum')
+            ->postJson("/api/v1/admin/pemanggilan/{$pemanggilan->id}/setujui-lepas", [
+                'catatan' => 'Pelepasan disetujui tanpa denda',
+            ]);
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.status', 'dilepas');
+
+        $this->assertDatabaseHas('pemanggilans', [
+            'id' => $pemanggilan->id,
+            'status' => 'dilepas',
+            'catatan_admin' => 'Pelepasan disetujui tanpa denda',
+        ]);
+    }
+
+    /** 11. Admin bisa menolak permintaan pelepasan khodam */
+    public function test_admin_bisa_menolak_permintaan_pelepasan(): void
+    {
+        $pemanggilan = Pemanggilan::create([
+            'user_id' => $this->pengamal->id,
+            'khodam_id' => $this->khodam->id,
+            'tgl_panggil' => Carbon::today()->subDays(3)->toDateString(),
+            'tgl_jatuh_tempo' => Carbon::today()->addDays(2)->toDateString(),
+            'status' => 'menunggu_pelepasan',
+            'mahar' => 0,
+        ]);
+
+        $response = $this->actingAs($this->admin, 'sanctum')
+            ->postJson("/api/v1/admin/pemanggilan/{$pemanggilan->id}/tolak-lepas", [
+                'catatan' => 'Harap selesaikan ikatan ritual terlebih dahulu',
+            ]);
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.status', 'aktif');
+
+        $this->assertDatabaseHas('pemanggilans', [
+            'id' => $pemanggilan->id,
+            'status' => 'aktif',
+            'catatan_admin' => 'Harap selesaikan ikatan ritual terlebih dahulu',
+        ]);
+    }
 }

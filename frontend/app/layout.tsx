@@ -16,6 +16,11 @@ export const metadata: Metadata = {
   title: "KhodamKu — Sewa Khodam, Hidup Lebih Tenang",
   description:
     "Temukan khodam pendamping sesuai kebutuhan spiritualmu. Cepat, aman, terpercaya langsung dikendalikan lewat Juru Kunci. Semua tercatat di Buku Catatan Gaib.",
+  icons: {
+    icon: "/images/logo.png",
+    shortcut: "/images/logo.png",
+    apple: "/images/logo.png",
+  },
 };
 
 export default function RootLayout({

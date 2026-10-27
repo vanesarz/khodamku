@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 
@@ -57,12 +58,22 @@ export default function LoginPage() {
     <div className="min-h-screen flex flex-col justify-between bg-[#090807] text-stone-100 px-6 py-8 sm:px-12 sm:py-10">
       {/* Top Header / Brand */}
       <header className="w-full max-w-7xl mx-auto">
-        <Link href="/" className="inline-block group">
-          <span className="text-xl font-bold tracking-tight text-white group-hover:text-amber-300 transition-colors">
-            KhodamKu
-          </span>
-          {/* Subtle gold line bar below logo */}
-          <div className="h-[2px] w-8 bg-[#d8b168] mt-1 group-hover:w-12 transition-all duration-300" />
+        <Link href="/" className="inline-flex items-center gap-3 group">
+          <Image
+            src="/images/logo.png"
+            alt="Logo KhodamKu"
+            width={36}
+            height={36}
+            className="h-9 w-9 rounded-full object-contain transition-transform group-hover:scale-105"
+            priority
+          />
+          <div>
+            <span className="text-xl font-bold tracking-tight text-white group-hover:text-amber-300 transition-colors block leading-tight">
+              KhodamKu
+            </span>
+            {/* Subtle gold line bar below logo */}
+            <div className="h-[2px] w-8 bg-[#d8b168] mt-1 group-hover:w-12 transition-all duration-300" />
+          </div>
         </Link>
       </header>
 

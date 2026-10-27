@@ -25,11 +25,12 @@ export interface SummonedContract {
   tgl_pelepasan_raw: string | null;
   tgl_pelepasan: string;
   durasi_hari: number;
-  status: 'Aktif' | 'Terlambat' | 'Dilepas';
+  status: 'Menunggu Persetujuan' | 'Aktif' | 'Menunggu Pelepasan' | 'Terlambat' | 'Dilepas' | 'Ditolak';
   is_terlambat: boolean;
   status_badge: string;
   mahar: number;
   mahar_formatted: string;
+  catatan_admin?: string;
 }
 
 /**
@@ -51,6 +52,40 @@ export function parseSummonedContracts(rawJson?: string | null): SummonedContrac
             status_badge: 'Dilepas',
             mahar: Number(item.mahar) || 0,
             mahar_formatted: `Rp${(Number(item.mahar) || 0).toLocaleString('id-ID')}`,
+          };
+        }
+
+        if (item.status === 'Menunggu Persetujuan' || item.status === 'menunggu_persetujuan') {
+          return {
+            ...item,
+            status: 'Menunggu Persetujuan' as const,
+            is_terlambat: false,
+            status_badge: 'Menunggu Persetujuan',
+            mahar: 0,
+            mahar_formatted: '~Rp0',
+          };
+        }
+
+        if (item.status === 'Menunggu Pelepasan' || item.status === 'menunggu_pelepasan') {
+          const dueStatus = calculateDueDateStatus(item.tgl_jatuh_tempo_raw, today);
+          return {
+            ...item,
+            status: 'Menunggu Pelepasan' as const,
+            is_terlambat: dueStatus.isTerlambat,
+            status_badge: 'Menunggu Pelepasan',
+            mahar: dueStatus.mahar,
+            mahar_formatted: dueStatus.maharFormatted,
+          };
+        }
+
+        if (item.status === 'Ditolak' || item.status === 'ditolak') {
+          return {
+            ...item,
+            status: 'Ditolak' as const,
+            is_terlambat: false,
+            status_badge: 'Ditolak',
+            mahar: 0,
+            mahar_formatted: '~Rp0',
           };
         }
 
@@ -175,9 +210,9 @@ export function createSummonedContract(
     tgl_pelepasan_raw: null,
     tgl_pelepasan: '—',
     durasi_hari: durasiHari,
-    status: 'Aktif',
+    status: 'Menunggu Persetujuan',
     is_terlambat: false,
-    status_badge: `${durasiHari} hari lagi`,
+    status_badge: 'Menunggu Persetujuan',
     mahar: 0,
     mahar_formatted: '~Rp0',
   };
